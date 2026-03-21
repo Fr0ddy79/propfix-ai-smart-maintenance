@@ -1,0 +1,350 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, Bot, User, Wrench, Clock, MapPin, Camera, MessageSquare, CheckCircle, Play, Send } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { StatusBadge } from "@/components/app/StatusBadge";
+import { CompletionProofDialog } from "@/components/app/CompletionProofDialog";
+import { getTicketById, getContractors, getMessages, addMessage, assignContractor, updateTicketStatus, completeTicket } from "@/lib/data/queries";
+import type { TicketRow } from "@/lib/data/queries";
+
+interface TimelineEntry {
+  time: string;
+  event: string;
+  type: "created" | "ai" | "system" | "status" | "assigned";
+}
+
+const statusLabels: Record<string, string> = {
+  open: "New", assigned: "Assigned", in_progress: "In Progress", completed: "Completed", cancelled: "Cancelled"
+};
+
+export default function TicketDetail() {
+  const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
+
+  const { data: ticket, isLoading } = useQuery({
+    queryKey: ["ticket", id],
+    queryFn: () => getTicketById(id!),
+    enabled: !!id,
+  });
+
+  const { data: contractors = [] } = useQuery({
+    queryKey: ["contractors"],
+    queryFn: getContractors,
+  });
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ["messages", id],
+    queryFn: () => getMessages(id!),
+    enabled: !!id,
+  });
+
+  const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
+  const [messageText, setMessageText] = useState("");
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+
+  const assignMutation = useMutation({
+    mutationFn: ({ ticketId, contractorId }: { ticketId: string; contractorId: string }) =>
+      assignContractor(ticketId, contractorId),
+    onSuccess: (_, { contractorId }) => {
+      queryClient.invalidateQueries({ queryKey: ["ticket", id] });
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      const contractor = contractors.find(c => c.id === contractorId);
+      const now = new Date();
+      const timeStr = now.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+      setTimeline(prev => [{ time: timeStr, event: `Assigned to ${contractor?.company_name ?? "contractor"}`, type: "assigned" }, ...prev]);
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: ({ ticketId, status }: { ticketId: string; status: string }) =>
+      updateTicketStatus(ticketId, status as TicketRow["status"]),
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["ticket", id] });
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      const now = new Date();
+      const timeStr = now.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+      setTimeline(prev => [{ time: timeStr, event: `Status changed to ${statusLabels[status] ?? status}`, type: "status" }, ...prev]);
+    },
+  });
+
+  const messageMutation = useMutation({
+    mutationFn: (content: string) => addMessage(id!, content),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["messages", id] });
+      setMessageText("");
+    },
+  });
+
+  const completionMutation = useMutation({
+    mutationFn: ({ notes, photos }: { notes: string; photos: unknown[] }) =>
+      completeTicket(id!, notes, photos as { file_name: string; file_url: string; file_type: string }[]),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ticket", id] });
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+    },
+  });
+
+  const addTimelineEntry = (event: string, type: TimelineEntry["type"]) => {
+    const now = new Date();
+    const timeStr = now.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+    setTimeline(prev => [{ time: timeStr, event, type }, ...prev]);
+  };
+
+  const handleStatusChange = (newStatus: string) => {
+    if (!ticket) return;
+    statusMutation.mutate({ ticketId: ticket.id, status: newStatus });
+  };
+
+  const handleAssign = (contractorId: string) => {
+    if (!ticket) return;
+    assignMutation.mutate({ ticketId: ticket.id, contractorId });
+  };
+
+  const handleSendMessage = () => {
+    if (!messageText.trim()) return;
+    messageMutation.mutate(messageText.trim());
+  };
+
+  const handleComplete = ({ notes, photos }: { notes: string; photos: unknown[] }) => {
+    completionMutation.mutate({ notes, photos });
+    addTimelineEntry("Job marked as complete", "status");
+  };
+
+  if (isLoading) {
+    return <div className="p-4 lg:p-6 animate-fade-in text-center py-20 text-sm text-muted-foreground">Loading ticket...</div>;
+  }
+
+  if (!ticket) {
+    return (
+      <div className="p-4 lg:p-6 animate-fade-in text-center py-20">
+        <h2 className="text-xl font-bold text-foreground mb-2">Ticket not found</h2>
+        <p className="text-muted-foreground mb-4">The ticket you're looking for doesn't exist.</p>
+        <Link to="/app/tickets" className="text-primary hover:text-primary/80 text-sm">← Back to Tickets</Link>
+      </div>
+    );
+  }
+
+  const aiSummary = ticket.ai_triage_json as Record<string, string> | null;
+  const availableContractors = contractors.filter(
+    c => c.specialty === ticket.category || c.specialty === "General Maintenance"
+  );
+  const initialTimeline: TimelineEntry[] = [
+    { time: new Date(ticket.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }), event: "Ticket created", type: "created" },
+    ...(aiSummary ? [{ time: new Date(ticket.updated_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }), event: `AI triage: ${aiSummary.category ?? ticket.category}`, type: "ai" as const }] : []),
+  ];
+  const allTimeline = [...timeline, ...initialTimeline];
+
+  return (
+    <div className="p-4 lg:p-6 animate-fade-in">
+      {/* Back nav */}
+      <Link to="/app/tickets" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
+        <ArrowLeft className="w-4 h-4" />
+        Back to Tickets
+      </Link>
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <StatusBadge status={ticket.status} />
+            <span className="text-xs text-muted-foreground font-mono">{ticket.id.slice(0, 8)}</span>
+          </div>
+          <h1 className="text-xl font-bold text-foreground">{ticket.title}</h1>
+        </div>
+        <div className="flex gap-2">
+          {ticket.status !== "in_progress" && ticket.status !== "completed" && (
+            <Button variant="outline" size="sm" onClick={() => handleStatusChange("in_progress")}
+              className="active:scale-[0.97] transition-all">
+              <Play className="w-3.5 h-3.5 mr-1.5" /> Mark In Progress
+            </Button>
+          )}
+          {ticket.status !== "completed" && (
+            <Button size="sm" onClick={() => setCompleteDialogOpen(true)}
+              className="bg-status-completed text-primary-foreground hover:bg-status-completed/90 active:scale-[0.97] transition-all">
+              <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Mark Complete
+            </Button>
+          )}
+          {ticket.status === "completed" && (
+            <span className="inline-flex items-center gap-1.5 text-sm text-status-completed font-medium">
+              <CheckCircle className="w-4 h-4" /> Completed
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-[1fr,380px] gap-6">
+        {/* Left Column */}
+        <div className="space-y-5">
+          {/* AI Triage Summary */}
+          {aiSummary && (
+            <div className="rounded-xl border border-primary/20 bg-primary/3 p-5 card-shadow">
+              <div className="flex items-center gap-2 mb-3">
+                <Bot className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">AI Triage Summary</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {Object.entries(aiSummary).map(([key, value]) => (
+                  <div key={key}>
+                    <div className="text-xs text-muted-foreground capitalize mb-0.5">{key.replace(/([A-Z])/g, " $1")}</div>
+                    <div className="text-sm font-medium text-foreground">{value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Description */}
+          <div className="rounded-xl border border-border bg-card p-5 card-shadow">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Issue Description</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{ticket.description}</p>
+          </div>
+
+          {/* Property Info */}
+          <div className="rounded-xl border border-border bg-card p-5 card-shadow">
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-muted-foreground" /> Property Info
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div><span className="text-muted-foreground">Property:</span> <span className="font-medium text-foreground">{ticket.property_name ?? "—"}</span></div>
+              <div><span className="text-muted-foreground">Address:</span> <span className="text-foreground">{ticket.property_address ?? "—"}</span></div>
+            </div>
+          </div>
+
+          {/* Attached Photos placeholder */}
+          <div className="rounded-xl border border-border bg-card p-5 card-shadow">
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Camera className="w-4 h-4 text-muted-foreground" /> Attached Photos
+            </h3>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors">
+                <span className="text-xs text-muted-foreground">+ Add</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-5">
+          {/* Assign Contractor */}
+          <div className="rounded-xl border border-border bg-card p-5 card-shadow">
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Wrench className="w-4 h-4 text-muted-foreground" /> Assign Contractor
+            </h3>
+            {ticket.contractor_id ? (
+              <div className="p-3 rounded-lg bg-status-completed/8 border border-status-completed/15">
+                <div className="text-sm font-medium text-foreground">{ticket.contractor_name ?? "Contractor"}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Currently assigned</div>
+                {ticket.status !== "completed" && (
+                  <Button variant="ghost" size="sm" className="mt-2 w-full text-xs text-muted-foreground h-7"
+                    onClick={() => handleStatusChange("open")}>
+                    Unassign
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {availableContractors.length === 0 && (
+                  <p className="text-sm text-muted-foreground py-2">No contractors available for this trade.</p>
+                )}
+                {availableContractors.slice(0, 3).map(c => (
+                  <div key={c.id} className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/30 transition-colors">
+                    <div>
+                      <div className="text-sm font-medium text-foreground">{c.company_name}</div>
+                      <div className="text-xs text-muted-foreground">{c.specialty}</div>
+                    </div>
+                    <Button size="sm" variant="outline" className="text-xs active:scale-[0.97] transition-all"
+                      onClick={() => handleAssign(c.id)}
+                      disabled={assignMutation.isPending}>
+                      {assignMutation.isPending ? "Assigning..." : "Assign"}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Schedule */}
+          <div className="rounded-xl border border-border bg-card p-5 card-shadow">
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-muted-foreground" /> Scheduling
+            </h3>
+            {ticket.scheduled_date ? (
+              <p className="text-sm text-foreground">Scheduled for {new Date(ticket.scheduled_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
+            ) : (
+              <p className="text-sm text-muted-foreground">No date scheduled yet.</p>
+            )}
+          </div>
+
+          {/* Timeline */}
+          <div className="rounded-xl border border-border bg-card p-5 card-shadow">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Activity Timeline</h3>
+            <div className="space-y-4">
+              {allTimeline.map((entry, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className={`w-2 h-2 rounded-full mt-1.5 ${
+                      entry.type === "ai" ? "bg-primary" :
+                      entry.type === "created" ? "bg-status-new" :
+                      entry.type === "status" ? "bg-status-in-progress" :
+                      entry.type === "assigned" ? "bg-status-completed" :
+                      "bg-muted-foreground/30"
+                    }`} />
+                    {i < allTimeline.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
+                  </div>
+                  <div className="pb-3">
+                    <div className="text-sm text-foreground">{entry.event}</div>
+                    <div className="text-xs text-muted-foreground tabular-nums">{entry.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Messages */}
+          <div className="rounded-xl border border-border bg-card p-5 card-shadow">
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-muted-foreground" /> Messages
+            </h3>
+            <div className="space-y-3 mb-3 max-h-48 overflow-y-auto">
+              {messages.map(msg => (
+                <div key={msg.id} className={`p-3 rounded-lg text-xs ${msg.is_system_message ? "bg-primary/5 border border-primary/10" : "bg-muted/50"}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`text-xs font-medium ${msg.is_system_message ? "text-primary" : "text-foreground"}`}>
+                      {msg.is_system_message ? "System" : "User"}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(msg.created_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true })}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{msg.content}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <label htmlFor="ticket-message" className="sr-only">Message</label>
+                <Input id="ticket-message" className="flex-1" placeholder="Type a message..."
+                  value={messageText} onChange={e => setMessageText(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSendMessage()} />
+              </div>
+              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={handleSendMessage} disabled={messageMutation.isPending}>
+                <Send className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <CompletionProofDialog
+        jobId={ticket.id}
+        jobTitle={ticket.title}
+        open={completeDialogOpen}
+        onOpenChange={setCompleteDialogOpen}
+        onComplete={handleComplete}
+      />
+    </div>
+  );
+}

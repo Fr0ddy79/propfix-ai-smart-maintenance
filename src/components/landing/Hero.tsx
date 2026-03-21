@@ -1,0 +1,101 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Play } from "lucide-react";
+
+export function Hero() {
+  return (
+    <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 bg-[hsl(var(--landing-bg))] overflow-hidden">
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)`,
+        backgroundSize: '24px 24px',
+      }} />
+
+      <div className="section-container section-padding relative">
+        <div className="max-w-3xl mx-auto text-center">
+          {/* Eyebrow */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium mb-6 animate-fade-in">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-soft" />
+            AI-Powered Maintenance Coordination
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.08] mb-6 animate-fade-in" style={{ animationDelay: '100ms' }}>
+            Stop juggling maintenance requests
+          </h1>
+
+          {/* Subheadline */}
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in" style={{ animationDelay: '200ms' }}>
+            PropFix AI connects tenants, property managers, and contractors in one streamlined workflow. 
+            AI triages every request so the right contractor gets dispatched faster.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in" style={{ animationDelay: '300ms' }}>
+            <Link to="/app/dashboard">
+              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all h-12 px-8 text-base font-semibold">
+                Start Free Trial
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </Link>
+            <Link to="/tenant">
+              <Button variant="outline" size="lg" className="h-12 px-8 text-base font-semibold active:scale-[0.97] transition-all">
+                <Play className="mr-2 w-4 h-4" />
+                See Tenant Demo
+              </Button>
+            </Link>
+          </div>
+
+          <p className="text-sm text-muted-foreground mt-4 animate-fade-in" style={{ animationDelay: '400ms' }}>
+            14-day free trial · No credit card required · Setup in 5 minutes
+          </p>
+        </div>
+
+        {/* Dashboard Preview */}
+        <div className="mt-16 lg:mt-20 max-w-5xl mx-auto animate-fade-in" style={{ animationDelay: '500ms' }} role="img" aria-label="PropFix AI dashboard preview showing tickets and scheduling">
+          <div className="rounded-xl border border-border bg-card card-shadow-lg overflow-hidden">
+            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-border bg-muted/30">
+              <div className="w-3 h-3 rounded-full bg-destructive/60" />
+              <div className="w-3 h-3 rounded-full bg-status-in-progress/60" />
+              <div className="w-3 h-3 rounded-full bg-status-completed/60" />
+              <span className="ml-3 text-xs text-muted-foreground">PropFix AI — Dashboard</span>
+            </div>
+            <div className="p-6 bg-background">
+              {/* Mini dashboard mockup */}
+              <div className="grid grid-cols-4 gap-3 mb-4">
+                {[
+                  { label: "Open Tickets", value: "12", color: "text-status-new" },
+                  { label: "In Progress", value: "8", color: "text-status-in-progress" },
+                  { label: "Completed (7d)", value: "23", color: "text-status-completed" },
+                  { label: "Avg Response", value: "1.4h", color: "text-primary" },
+                ].map((kpi) => (
+                  <div key={kpi.label} className="rounded-lg bg-card border border-border p-3">
+                    <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
+                    <div className={`text-xl font-bold tabular-nums ${kpi.color}`}>{kpi.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-2 rounded-lg bg-card border border-border p-3">
+                  <div className="text-xs font-medium text-foreground mb-2">Action Required</div>
+                  {["Leaking kitchen faucet — Unit 4B", "Electrical outlet issue — Unit 7C", "Dishwasher noise — Unit 5D"].map((t, i) => (
+                    <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                      <span className="text-xs text-muted-foreground">{t}</span>
+                      <span className="text-[10px] font-medium text-primary">Assign →</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-lg bg-card border border-border p-3">
+                  <div className="text-xs font-medium text-foreground mb-2">Today's Jobs</div>
+                  {["AC Repair 9:00 AM", "Lockout 10:30 AM", "Faucet Fix 2:00 PM"].map((j, i) => (
+                    <div key={i} className="py-1.5 text-xs text-muted-foreground border-b border-border last:border-0">{j}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
