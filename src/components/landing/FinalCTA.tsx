@@ -15,15 +15,15 @@ export function FinalCTA() {
           Join property managers who save hours every week with PropFix AI. Try the tenant demo or talk to our team.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-          <Link to="/tenant">
+          <Link to="/login">
             <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 active:scale-[0.97] transition-all h-12 px-8 text-base font-semibold">
-              Try Tenant Demo
+              Start Free Trial
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
-          <Link to="/contractor">
+          <Link to="/tenant">
             <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 active:scale-[0.97] transition-all h-12 px-8 text-base font-semibold">
-              Contractor Portal Demo
+              Try Tenant Demo
             </Button>
           </Link>
         </div>
