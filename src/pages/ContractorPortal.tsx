@@ -7,6 +7,7 @@ import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { CompletionProofDialog } from "@/components/app/CompletionProofDialog";
 import { getContractors, getContractorTickets, updateTicketStatus } from "@/lib/data/queries";
 import type { ContractorRow, TicketRow } from "@/lib/data/queries";
+import { cn } from "@/lib/utils";
 
 export default function ContractorPortal() {
   const [activeContractorId, setActiveContractorId] = useState<string | null>(null);
@@ -60,11 +61,13 @@ export default function ContractorPortal() {
             <div className="relative">
               <button
                 onClick={() => setSwitcherOpen(o => !o)}
+                aria-expanded={switcherOpen}
+                aria-haspopup="listbox"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted/30 transition-colors text-sm"
               >
                 <span className="text-foreground font-medium truncate max-w-[120px] sm:max-w-[none]">{activeContractor?.company_name ?? "Select contractor"}</span>
                 <span className="text-muted-foreground text-xs hidden sm:inline">{activeContractor?.specialty}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground flex-shrink-0 transition-transform", switcherOpen && "rotate-180")} />
               </button>
               {switcherOpen && (
                 <div className="absolute right-0 top-full mt-1 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
