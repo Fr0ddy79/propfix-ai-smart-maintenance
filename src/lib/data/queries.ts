@@ -319,6 +319,25 @@ export async function getProfiles(): Promise<Profile[]> {
   return data ?? [];
 }
 
+export async function createContractor(contractor: {
+  company_name: string;
+  specialty: string;
+  email?: string;
+  phone?: string;
+  license_number?: string;
+  insurance_info?: string;
+  hourly_rate?: number;
+  is_available?: boolean;
+}) {
+  const { data, error } = await supabase
+    .from("contractors")
+    .insert({ ...contractor, is_available: contractor.is_available ?? true })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function updateProfile(id: string, updates: Partial<Pick<Profile, "full_name" | "phone">>) {
   const { data, error } = await supabase
     .from("profiles")

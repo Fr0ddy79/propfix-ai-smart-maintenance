@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Star, Phone, Mail, Plus } from "lucide-react";
+import { Phone, Mail, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AssignJobDialog } from "@/components/app/AssignJobDialog";
+import { NewContractorDialog } from "@/components/app/NewContractorDialog";
 import { getContractors } from "@/lib/data/queries";
 import type { ContractorRow } from "@/lib/data/queries";
 
@@ -14,6 +15,7 @@ const availabilityConfig: Record<string, { label: string; className: string }> =
 
 export default function Contractors() {
   const [selectedContractor, setSelectedContractor] = useState<ContractorRow | null>(null);
+  const [addContractorOpen, setAddContractorOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: contractors = [], isLoading } = useQuery({
@@ -25,7 +27,11 @@ export default function Contractors() {
     <div className="p-4 lg:p-6 space-y-4 animate-fade-in">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-foreground">Contractors</h1>
-        <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all">
+        <Button
+          size="sm"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all"
+          onClick={() => setAddContractorOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-1.5" /> Add Contractor
         </Button>
       </div>
@@ -103,6 +109,11 @@ export default function Contractors() {
         onAssigned={() => {
           queryClient.invalidateQueries({ queryKey: ["tickets"] });
         }}
+      />
+
+      <NewContractorDialog
+        open={addContractorOpen}
+        onOpenChange={setAddContractorOpen}
       />
     </div>
   );
