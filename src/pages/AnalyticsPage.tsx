@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, TrendingUp, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { BarChart3, TrendingUp, Clock, CheckCircle, AlertTriangle, Inbox } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { getTickets } from "@/lib/data/queries";
@@ -99,7 +99,13 @@ export default function AnalyticsPage() {
             {isLoading ? (
               [1, 2, 3].map(i => <Skeleton key={i} className="h-8 w-full" />)
             ) : topCategories.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">No data yet.</p>
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                  <Inbox className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium text-foreground">No data yet</p>
+                <p className="text-xs text-muted-foreground">Ticket categories will appear here once data is available.</p>
+              </div>
             ) : (
               topCategories.map(([cat, count]) => {
                 const pct = total > 0 ? (count / total) * 100 : 0;
@@ -167,7 +173,13 @@ export default function AnalyticsPage() {
             ))}
           </div>
         ) : allTickets.length === 0 ? (
-          <div className="px-5 py-8 text-center text-sm text-muted-foreground">No tickets yet.</div>
+          <div className="flex flex-col items-center gap-2 py-8 text-center">
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+              <Inbox className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <p className="text-sm font-medium text-foreground">No tickets yet</p>
+            <p className="text-xs text-muted-foreground">Submitted maintenance requests will appear here.</p>
+          </div>
         ) : (
           <div className="divide-y divide-border">
             {allTickets.slice(0, 10).map(ticket => (

@@ -5,6 +5,7 @@ import { ArrowLeft, Camera, Send, CheckCircle, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createTicket, getProperties, triageTicket } from "@/lib/data/queries";
 import type { Property } from "@/lib/supabase";
 
@@ -47,7 +48,7 @@ export default function TenantPortal() {
   const [priority, setPriority] = useState("medium");
   const [description, setDescription] = useState("");
 
-  const { data: properties = [] } = useQuery({
+  const { data: properties = [], isLoading } = useQuery({
     queryKey: ["properties"],
     queryFn: getProperties,
   });
@@ -175,17 +176,26 @@ export default function TenantPortal() {
 
           <div>
             <label htmlFor="property-select" className="text-sm font-medium text-foreground mb-1.5 block">Property</label>
-            <select
-              id="property-select"
-              value={propertyId}
-              onChange={e => setPropertyId(e.target.value)}
-              className="w-full h-10 px-3 rounded-md border border-input bg-card text-sm text-foreground"
-            >
-              <option value="">Select a property...</option>
-              {properties.map((p: Property) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+            {properties.length === 0 && !isLoading ? (
+              <select id="property-select" className="w-full h-10 px-3 rounded-md border border-input bg-card text-sm text-foreground opacity-60" disabled>
+                <option value="">No properties available</option>
+              </select>
+            ) : (
+              <select
+                id="property-select"
+                value={propertyId}
+                onChange={e => setPropertyId(e.target.value)}
+                className="w-full h-10 px-3 rounded-md border border-input bg-card text-sm text-foreground"
+              >
+                <option value="">Select a property...</option>
+                {properties.map((p: Property) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            )}
+            {properties.length === 0 && !isLoading && (
+              <p className="text-xs text-muted-foreground mt-1">Properties are managed by your building admin.</p>
+            )}
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
