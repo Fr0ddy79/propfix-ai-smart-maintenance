@@ -215,8 +215,10 @@ export default function SettingsPage() {
               </div>
             ))}
             <button
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors"
-              onClick={() => toast({ title: "Billing", description: "Contact hello@propfix.ai to manage your subscription." })}
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-muted-foreground cursor-not-allowed opacity-60"
+              disabled
+              onClick={() => toast({ title: "Coming soon", description: "Billing management will be available in the next release." })}
+              title="Billing management coming soon"
             >
               Manage Subscription
             </button>
