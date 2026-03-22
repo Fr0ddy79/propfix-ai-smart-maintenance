@@ -34,7 +34,7 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <Link to="/login">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all h-12 px-8 text-base font-semibold">
-                Start Free Trial
+                Login to Demo
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
@@ -47,7 +47,7 @@ export function Hero() {
           </div>
 
           <p className="text-sm text-muted-foreground mt-4 animate-fade-in" style={{ animationDelay: '400ms' }}>
-            14-day free trial · No credit card required · Setup in 5 minutes
+            No signup required · Instant demo access · Explore all features
           </p>
         </div>
 

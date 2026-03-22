@@ -36,9 +36,9 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-card rounded-xl border border-border card-shadow p-6">
-          <h1 className="text-xl font-bold text-foreground mb-1">Sign in</h1>
+          <h1 className="text-xl font-bold text-foreground mb-1">Demo Login</h1>
           <p className="text-sm text-muted-foreground mb-6">
-            Access your property management dashboard
+            Explore the property management dashboard with demo data
           </p>
 
           {error && (

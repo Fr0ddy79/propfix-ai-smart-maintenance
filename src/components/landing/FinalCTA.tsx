@@ -17,7 +17,7 @@ export function FinalCTA() {
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
           <Link to="/login">
             <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 active:scale-[0.97] transition-all h-12 px-8 text-base font-semibold">
-              Start Free Trial
+              Login to Demo
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
