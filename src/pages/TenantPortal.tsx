@@ -151,12 +151,12 @@ export default function TenantPortal() {
         <div key={submitted ? "submitted" : "form"} className="space-y-5">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Your Name</label>
-              <Input placeholder="e.g. Jane Doe" value={name} onChange={e => setName(e.target.value)} className="bg-card" />
+              <label htmlFor="tenant-name" className="text-sm font-medium text-foreground mb-1.5 block">Your Name</label>
+              <Input id="tenant-name" placeholder="e.g. Jane Doe" value={name} onChange={e => setName(e.target.value)} className="bg-card" />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Unit Number</label>
-              <Input placeholder="e.g. 4B" value={unit} onChange={e => setUnit(e.target.value)} className="bg-card" />
+              <label htmlFor="tenant-unit" className="text-sm font-medium text-foreground mb-1.5 block">Unit Number</label>
+              <Input id="tenant-unit" placeholder="e.g. 4B" value={unit} onChange={e => setUnit(e.target.value)} className="bg-card" />
             </div>
           </div>
 
@@ -205,8 +205,9 @@ export default function TenantPortal() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Describe the Issue</label>
+            <label htmlFor="tenant-description" className="text-sm font-medium text-foreground mb-1.5 block">Describe the Issue</label>
             <Textarea
+              id="tenant-description"
               className="min-h-[120px]"
               placeholder="Tell us what's wrong — our AI will categorize and prioritize your request automatically..."
               value={description}
@@ -216,8 +217,9 @@ export default function TenantPortal() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Attach Photos (optional)</label>
+            <label htmlFor="tenant-photos" className="text-sm font-medium text-foreground mb-1.5 block">Attach Photos (optional)</label>
             <input
+              id="tenant-photos"
               ref={fileInputRef}
               type="file"
               accept="image/*"
