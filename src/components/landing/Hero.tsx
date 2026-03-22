@@ -78,17 +78,35 @@ export function Hero() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2 rounded-lg bg-card border border-border p-3">
                   <div className="text-xs font-medium text-foreground mb-2">Action Required</div>
-                  {["Leaking kitchen faucet — Unit 4B", "Electrical outlet issue — Unit 7C", "Dishwasher noise — Unit 5D"].map((t, i) => (
+                  {[
+                    { ticket: "Leaking faucet, Unit 4B", urgency: "Urgent" },
+                    { ticket: "AC not cooling, Unit 12A", urgency: "High" },
+                    { ticket: "Garbage disposal jam, Unit 7C", urgency: "Medium" },
+                  ].map((t, i) => (
                     <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
-                      <span className="text-xs text-muted-foreground">{t}</span>
-                      <span className="text-[10px] font-medium text-primary">Assign →</span>
+                      <span className="text-xs text-muted-foreground">{t.ticket}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                          t.urgency === "Urgent" ? "bg-status-urgent/10 text-status-urgent" :
+                          t.urgency === "High" ? "bg-status-in-progress/10 text-status-in-progress" :
+                          "bg-primary/10 text-primary"
+                        }`}>{t.urgency}</span>
+                        <span className="text-[10px] font-medium text-primary">Assign →</span>
+                      </div>
                     </div>
                   ))}
                 </div>
                 <div className="rounded-lg bg-card border border-border p-3">
                   <div className="text-xs font-medium text-foreground mb-2">Today's Jobs</div>
-                  {["AC Repair 9:00 AM", "Lockout 10:30 AM", "Faucet Fix 2:00 PM"].map((j, i) => (
-                    <div key={i} className="py-1.5 text-xs text-muted-foreground border-b border-border last:border-0">{j}</div>
+                  {[
+                    { job: "HVAC Repair", time: "9:00 AM", status: "In Progress" },
+                    { job: "Lockout Assist", time: "10:30 AM", status: "Scheduled" },
+                    { job: "Plumbing Fix", time: "2:00 PM", status: "Scheduled" },
+                  ].map((j, i) => (
+                    <div key={i} className="py-1.5 text-xs text-muted-foreground border-b border-border last:border-0">
+                      <div className="font-medium text-foreground">{j.job}</div>
+                      <div className="text-[10px] text-muted-foreground">{j.time} · {j.status}</div>
+                    </div>
                   ))}
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Bot, User, Wrench, Clock, MapPin, Camera, MessageSquare, CheckCircle, Play, Send } from "lucide-react";
+import { ArrowLeft, Bot, User, Wrench, Clock, MapPin, Camera, MessageSquare, CheckCircle, Play, Send, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -210,18 +210,44 @@ export default function TicketDetail() {
           {/* AI Triage Summary */}
           {aiSummary && (
             <div className="rounded-xl border border-primary/20 bg-primary/3 p-5 card-shadow">
-              <div className="flex items-center gap-2 mb-3">
-                <Bot className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-primary">AI Triage Summary</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-semibold text-primary">AI Triage Summary</span>
+                </div>
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                  <Zap className="w-3 h-3" />
+                  Auto-categorized
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {Object.entries(aiSummary).map(([key, value]) => (
                   <div key={key}>
                     <div className="text-xs text-muted-foreground capitalize mb-0.5">{key.replace(/([A-Z])/g, " $1")}</div>
-                    <div className="text-sm font-medium text-foreground">{value}</div>
+                    <div className="text-sm font-medium text-foreground">{value as string}</div>
                   </div>
                 ))}
               </div>
+              {aiSummary.suggestedTrade && (
+                <div className="mt-3 pt-3 border-t border-primary/10">
+                  <div className="flex items-center gap-2">
+                    <Wrench className="w-3.5 h-3.5 text-primary/70" />
+                    <span className="text-xs text-muted-foreground">
+                      Suggested:{" "}
+                      <span className="font-medium text-foreground">
+                        {(() => {
+                          const trade = aiSummary.suggestedTrade as string;
+                          const match = availableContractors.find(c =>
+                            c.specialty.toLowerCase().includes(trade.toLowerCase()) ||
+                            trade.toLowerCase().includes(c.specialty.toLowerCase())
+                          );
+                          return match ? `${match.company_name} (${match.specialty})` : trade;
+                        })()}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
