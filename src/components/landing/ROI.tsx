@@ -2,10 +2,10 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Clock, TrendingUp, ThumbsUp, DollarSign } from "lucide-react";
 
 const benefits = [
-  { icon: Clock, stat: "77%", label: "Less admin time", desc: "Automate coordination that used to require phone calls and emails." },
-  { icon: TrendingUp, stat: "3.2×", label: "Faster response", desc: "AI routing gets the right contractor dispatched immediately." },
-  { icon: ThumbsUp, stat: "94%", label: "Tenant satisfaction", desc: "Real-time updates and faster resolutions keep tenants happy." },
-  { icon: DollarSign, stat: "$840", label: "Monthly savings", desc: "Reduce per-unit maintenance coordination costs across your portfolio." },
+  { icon: Clock, stat: "< 2 hrs", label: "Weekly coordination time", desc: "Most teams handle all maintenance coordination in under two hours per week." },
+  { icon: TrendingUp, stat: "Same day", label: "First contractor response", desc: "AI triage routes requests to the right contractor within minutes." },
+  { icon: ThumbsUp, stat: "Real-time", label: "Tenant updates", desc: "No more phone tag — tenants see status updates as they happen." },
+  { icon: DollarSign, stat: "Zero", label: "Per-ticket overhead", desc: "Every request logged, categorized, and tracked without manual effort." },
 ];
 
 export function ROI() {

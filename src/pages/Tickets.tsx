@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Search, Filter, Plus, Ticket as TicketIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ const statusFilters = [
 const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
 
 export default function Tickets() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(
@@ -152,7 +153,14 @@ export default function Tickets() {
                 </tr>
               ) : (
                 filtered.map((ticket: TicketRow) => (
-                  <tr key={ticket.id} className="hover:bg-muted/20 transition-colors">
+                  <tr
+                    key={ticket.id}
+                    onClick={() => navigate(`/app/tickets/${ticket.id}`)}
+                    className="hover:bg-muted/20 transition-colors cursor-pointer"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === "Enter" && navigate(`/app/tickets/${ticket.id}`)}
+                  >
                     <td className="px-4 py-3">
                       <StatusBadge status={ticket.status} />
                     </td>
@@ -161,7 +169,7 @@ export default function Tickets() {
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{ticket.id.slice(0, 8)}</td>
                     <td className="px-4 py-3">
-                      <Link to={`/app/tickets/${ticket.id}`} className="font-medium text-foreground hover:text-primary transition-colors">
+                      <Link to={`/app/tickets/${ticket.id}`} className="font-medium text-foreground hover:text-primary transition-colors" onClick={(e) => e.stopPropagation()}>
                         {ticket.title}
                       </Link>
                     </td>
@@ -172,7 +180,7 @@ export default function Tickets() {
                       {ticket.contractor_name ?? <span className="text-status-in-progress">Unassigned</span>}
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell tabular-nums">
-                      {new Date(ticket.updated_at).toLocaleDateString()}
+                      {new Date(ticket.updated_at).toLocaleDate()}
                     </td>
                   </tr>
                 ))

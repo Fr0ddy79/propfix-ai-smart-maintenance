@@ -5,26 +5,13 @@ const footerLinks = {
     { label: "Features", href: "#features" },
     { label: "Pricing", href: "#pricing" },
     { label: "How It Works", href: "#how-it-works" },
-    { label: "API", href: "#" },
-    { label: "Changelog", href: "#" },
-  ],
-  Solutions: [
-    { label: "Property Managers", href: "#features" },
-    { label: "HOA Management", href: "#" },
-    { label: "Student Housing", href: "#" },
-    { label: "Commercial", href: "#" },
   ],
   Company: [
-    { label: "About", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Careers", href: "#" },
     { label: "Contact", href: "mailto:hello@propfix.ai" },
   ],
   Legal: [
     { label: "Privacy Policy", href: "#" },
     { label: "Terms of Service", href: "#" },
-    { label: "Security", href: "#" },
-    { label: "GDPR", href: "#" },
   ],
 };
 

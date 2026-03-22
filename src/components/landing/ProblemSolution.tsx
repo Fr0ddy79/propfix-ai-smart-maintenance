@@ -30,7 +30,7 @@ export function ProblemSolution() {
               ))}
             </div>
             <div className="mt-4 pt-4 border-t border-border text-xs text-muted-foreground">
-              Avg. 6.2 hrs/week spent on coordination
+              Most teams spend hours every week on this manually
             </div>
           </div>
 
@@ -63,7 +63,7 @@ export function ProblemSolution() {
               ))}
             </div>
             <div className="mt-4 pt-4 border-t border-border text-xs text-muted-foreground">
-              Avg. 1.4 hrs/week — <span className="font-medium text-status-completed">77% less time</span>
+              Most teams handle it in under <span className="font-medium text-status-completed">2 hrs/week</span>
             </div>
           </div>
         </div>
