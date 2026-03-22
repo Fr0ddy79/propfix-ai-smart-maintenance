@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Building2, Users, Bell, CreditCard, Puzzle, Shield, ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { getProperties } from "@/lib/data/queries";
+import { getProperties, createProperty } from "@/lib/data/queries";
 
 interface TeamMember {
   id: string;
@@ -33,13 +33,27 @@ export default function SettingsPage() {
     queryFn: getProperties,
   });
 
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: createProperty,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      setNewProperty({ name: "", units: "", address: "" });
+      setAddPropertyOpen(false);
+    },
+  });
+
   const toggleSection = (key: string) =>
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   const handleAddProperty = () => {
     if (!newProperty.name.trim() || !newProperty.units) return;
-    setNewProperty({ name: "", units: "", address: "" });
-    setAddPropertyOpen(false);
+    createMutation.mutate({
+      name: newProperty.name.trim(),
+      address: newProperty.address.trim(),
+      unit_count: parseInt(newProperty.units, 10) || 0,
+    });
   };
 
   return (
@@ -211,10 +225,10 @@ export default function SettingsPage() {
             <Button variant="outline" onClick={() => setAddPropertyOpen(false)}>Cancel</Button>
             <Button
               onClick={handleAddProperty}
-              disabled={!newProperty.name.trim() || !newProperty.units}
+              disabled={!newProperty.name.trim() || !newProperty.units || createMutation.isPending}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              Add Property
+              {createMutation.isPending ? "Adding..." : "Add Property"}
             </Button>
           </DialogFooter>
         </DialogContent>

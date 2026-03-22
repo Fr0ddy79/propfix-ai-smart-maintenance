@@ -298,6 +298,21 @@ export async function getProperties(): Promise<Property[]> {
   return data ?? [];
 }
 
+export async function createProperty(property: {
+  name: string;
+  address: string;
+  unit_count: number;
+  manager_id?: string;
+}) {
+  const { data, error } = await supabase
+    .from("properties")
+    .insert({ ...property, manager_id: property.manager_id ?? null })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 // ─── Dashboard stats ──────────────────────────────────────────────────────────
 
 export async function getDashboardStats() {
