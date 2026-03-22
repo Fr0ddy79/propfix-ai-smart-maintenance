@@ -70,13 +70,13 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
         <div className="space-y-4 py-2 max-h-[60vh] overflow-y-auto">
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Title *</label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Leaking faucet in bathroom" />
+              <label htmlFor="ticket-title" className="text-sm font-medium text-foreground mb-1.5 block">Title *</label>
+              <Input id="ticket-title" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Leaking faucet in bathroom" />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Issue Type *</label>
+              <label htmlFor="ticket-type" className="text-sm font-medium text-foreground mb-1.5 block">Issue Type *</label>
               <Select value={issueType} onValueChange={setIssueType}>
-                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                <SelectTrigger id="ticket-type"><SelectValue placeholder="Select type" /></SelectTrigger>
                 <SelectContent>
                   {issueTypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
@@ -85,9 +85,9 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Property</label>
+              <label htmlFor="ticket-property" className="text-sm font-medium text-foreground mb-1.5 block">Property</label>
               <Select value={propertyId} onValueChange={setPropertyId}>
-                <SelectTrigger><SelectValue placeholder="Select property" /></SelectTrigger>
+                <SelectTrigger id="ticket-property"><SelectValue placeholder="Select property" /></SelectTrigger>
                 <SelectContent>
                   {properties.map(p => (
                     <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
@@ -96,14 +96,14 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
               </Select>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Unit</label>
-              <Input value={unit} onChange={e => setUnit(e.target.value)} placeholder="e.g. Unit 4B" />
+              <label htmlFor="ticket-unit" className="text-sm font-medium text-foreground mb-1.5 block">Unit</label>
+              <Input id="ticket-unit" value={unit} onChange={e => setUnit(e.target.value)} placeholder="e.g. Unit 4B" />
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Priority</label>
+            <label htmlFor="ticket-priority" className="text-sm font-medium text-foreground mb-1.5 block">Priority</label>
             <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger id="ticket-priority"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {priorities.map(p => (
                   <SelectItem key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</SelectItem>
@@ -112,8 +112,8 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
             </Select>
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Description</label>
-            <Textarea value={description} onChange={e => setDescription(e.target.value)}
+            <label htmlFor="ticket-description" className="text-sm font-medium text-foreground mb-1.5 block">Description</label>
+            <Textarea id="ticket-description" value={description} onChange={e => setDescription(e.target.value)}
               placeholder="Describe the issue in detail..." className="min-h-[80px]" />
           </div>
         </div>
