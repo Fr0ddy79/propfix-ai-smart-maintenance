@@ -300,7 +300,7 @@ export async function getCalendarEvents(): Promise<CalendarEventRow[]> {
   const { data, error } = await supabase
     .from("tickets")
     .select(`
-      id, title, scheduled_date, status, priority, unit,
+      id, title, scheduled_date, status, priority, unit, updated_at,
       contractor:contractors(id, company_name),
       property:properties(id, name)
     `)
@@ -319,7 +319,15 @@ export async function getCalendarEvents(): Promise<CalendarEventRow[]> {
     unit: (t.unit as string | null) ?? null,
     status: (t.status as string) as CalendarEventRow["status"],
     priority: (t.priority as string) ?? "medium",
-    time: "9:00 AM",
+    time: (() => {
+      // Derive a plausible time-of-day from updated_at to avoid all events showing 9:00 AM
+      const updated = new Date(t.updated_at as string);
+      const h = updated.getHours();
+      const m = updated.getMinutes();
+      const ampm = h >= 12 ? "PM" : "AM";
+      const hour12 = h % 12 || 12;
+      return `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
+    })(),
   })) as CalendarEventRow[];
 }
 
