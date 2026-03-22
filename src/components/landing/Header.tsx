@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 
 const navLinks = [
   { label: "Product", href: "#features" },
-  { label: "Solutions", href: "#features" },
   { label: "Pricing", href: "#pricing" },
-  { label: "Demo", href: "/tenant" },
+  { label: "Sign in", href: "/login" },
+  { label: "Tenant Demo", href: "/tenant" },
 ];
 
 export function Header() {
