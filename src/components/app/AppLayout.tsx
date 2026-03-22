@@ -97,7 +97,7 @@ export function AppLayout() {
             {/* Mobile nav */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
+                <Button variant="ghost" size="icon" className="md:hidden" aria-label="Open navigation menu">
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
@@ -159,7 +159,7 @@ export function AppLayout() {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main id="main-content" className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

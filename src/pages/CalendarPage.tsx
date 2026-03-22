@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getCalendarEvents } from "@/lib/data/queries";
 import { addDays, format, startOfWeek, isSameDay } from "date-fns";
 
@@ -84,7 +85,14 @@ export default function CalendarPage() {
               <div key={i} className="min-h-[400px]">
                 <div className="p-2 space-y-2">
                   {isLoading ? (
-                    <div className="text-center py-8 text-xs text-muted-foreground/50">Loading...</div>
+                    <div className="space-y-2">
+                      <div className="p-2.5 rounded-lg border border-border bg-card">
+                        <Skeleton className="h-3 w-12 mb-1" />
+                        <Skeleton className="h-3 w-28 mb-1" />
+                        <Skeleton className="h-2 w-20 mb-1.5" />
+                        <Skeleton className="h-4 w-16 rounded-full" />
+                      </div>
+                    </div>
                   ) : dayEvents.length === 0 ? (
                     <div className="text-center py-8 text-xs text-muted-foreground/50">No jobs</div>
                   ) : (

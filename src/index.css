@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Skip-to-content link for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 0 0 0.375rem 0;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 0;
+}
+
 @layer base {
   :root {
     --background: 220 20% 97%;
@@ -165,3 +184,13 @@
 .reveal-stagger > .reveal:nth-child(6).revealed { animation-delay: 400ms; }
 .reveal-stagger > .reveal:nth-child(7).revealed { animation-delay: 480ms; }
 .reveal-stagger > .reveal:nth-child(8).revealed { animation-delay: 560ms; }
+
+/* Soft pulse animation */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}

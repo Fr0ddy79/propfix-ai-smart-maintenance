@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Search, Filter, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { NewTicketDialog } from "@/components/app/NewTicketDialog";
 import { getTickets } from "@/lib/data/queries";
@@ -102,11 +103,17 @@ export default function Tickets() {
             </thead>
             <tbody className="divide-y divide-border">
               {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                    Loading tickets...
-                  </td>
-                </tr>
+                [...Array(5)].map((_, i) => (
+                  <tr key={i} className="border-b border-border">
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-16 rounded-full" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-3 w-12" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-48" /></td>
+                    <td className="px-4 py-3 hidden md:table-cell"><Skeleton className="h-3 w-24" /></td>
+                    <td className="px-4 py-3 hidden lg:table-cell"><Skeleton className="h-3 w-16" /></td>
+                    <td className="px-4 py-3 hidden lg:table-cell"><Skeleton className="h-3 w-24" /></td>
+                    <td className="px-4 py-3 hidden md:table-cell"><Skeleton className="h-3 w-16" /></td>
+                  </tr>
+                ))
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">

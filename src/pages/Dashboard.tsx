@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { AlertTriangle, Clock, ArrowRight, Plus, Calendar as CalendarIcon, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { getTickets, getCalendarEvents } from "@/lib/data/queries";
 
@@ -103,7 +104,17 @@ export default function Dashboard() {
             </Link>
           </div>
           {isLoading ? (
-            <div className="px-5 py-8 text-sm text-muted-foreground">Loading tickets...</div>
+            <div className="divide-y divide-border">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center justify-between px-5 py-3.5">
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3 w-40" />
+                  </div>
+                  <Skeleton className="h-7 w-16 rounded-md" />
+                </div>
+              ))}
+            </div>
           ) : unassigned.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-muted-foreground">
               All tickets are assigned. Nice work! 🎉
@@ -149,7 +160,14 @@ export default function Dashboard() {
               </Link>
             </div>
             {isLoading ? (
-              <div className="px-5 py-6 text-center text-xs text-muted-foreground">Loading...</div>
+              <div className="divide-y divide-border">
+                {[1, 2].map(i => (
+                  <div key={i} className="px-5 py-3 space-y-1.5">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                ))}
+              </div>
             ) : todayJobs.length === 0 ? (
               <div className="px-5 py-6 text-center text-xs text-muted-foreground">No jobs scheduled for today.</div>
             ) : (
@@ -174,7 +192,14 @@ export default function Dashboard() {
               <h2 className="text-sm font-semibold text-foreground">Upcoming Schedule</h2>
             </div>
             {isLoading ? (
-              <div className="px-5 py-6 text-center text-xs text-muted-foreground">Loading...</div>
+              <div className="divide-y divide-border">
+                {[1, 2].map(i => (
+                  <div key={i} className="px-5 py-3 space-y-1.5">
+                    <Skeleton className="h-3 w-28" />
+                    <Skeleton className="h-3 w-20" />
+                  </div>
+                ))}
+              </div>
             ) : upcomingJobs.length === 0 ? (
               <div className="px-5 py-6 text-center text-xs text-muted-foreground">No upcoming jobs scheduled.</div>
             ) : (

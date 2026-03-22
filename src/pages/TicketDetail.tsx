@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Bot, User, Wrench, Clock, MapPin, Camera, MessageSquare, CheckCircle, Play, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/app/StatusBadge";
 import { CompletionProofDialog } from "@/components/app/CompletionProofDialog";
 import { getTicketById, getContractors, getMessages, addMessage, assignContractor, updateTicketStatus, completeTicket } from "@/lib/data/queries";
@@ -113,7 +114,36 @@ export default function TicketDetail() {
   };
 
   if (isLoading) {
-    return <div className="p-4 lg:p-6 animate-fade-in text-center py-20 text-sm text-muted-foreground">Loading ticket...</div>;
+    return (
+      <div className="p-4 lg:p-6 animate-fade-in space-y-6">
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Tickets</span>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24 rounded-full" />
+            <Skeleton className="h-7 w-64" />
+          </div>
+          <div className="flex gap-2">
+            <Skeleton className="h-8 w-32 rounded-md" />
+            <Skeleton className="h-8 w-32 rounded-md" />
+          </div>
+        </div>
+        <div className="grid lg:grid-cols-[1fr,380px] gap-6">
+          <div className="space-y-5">
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+            <Skeleton className="h-24 w-full rounded-xl" />
+          </div>
+          <div className="space-y-5">
+            <Skeleton className="h-40 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+            <Skeleton className="h-48 w-full rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!ticket) {

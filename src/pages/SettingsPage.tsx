@@ -123,7 +123,7 @@ export default function SettingsPage() {
         {/* Notifications */}
         <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-4">
-            <div className="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
               <Bell className="w-4 h-4 text-primary" />
             </div>
             <div>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
         {/* Billing */}
         <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
           <div className="flex items-center gap-3 px-5 py-4">
-            <div className="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
               <CreditCard className="w-4 h-4 text-primary" />
             </div>
             <div>
