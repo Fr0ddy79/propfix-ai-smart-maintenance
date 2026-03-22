@@ -307,7 +307,7 @@ export default function TicketDetail() {
                 {ticket.status !== "completed" && (
                   <Button variant="ghost" size="sm" className="mt-2 w-full text-xs text-muted-foreground h-7"
                     onClick={() => handleStatusChange("open")}>
-                    Unassign
+                    Reassign
                   </Button>
                 )}
               </div>
