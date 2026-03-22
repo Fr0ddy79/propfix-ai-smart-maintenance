@@ -74,9 +74,6 @@ export function AppLayout() {
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
                 {!collapsed && <span>{label}</span>}
-                {label === "Analytics" && !collapsed && (
-                  <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-semibold">Pro</span>
-                )}
               </Link>
             );
           })}
@@ -128,9 +125,6 @@ export function AppLayout() {
                       >
                         <Icon className="w-4 h-4 flex-shrink-0" />
                         <span>{label}</span>
-                        {label === "Analytics" && (
-                          <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-semibold">Pro</span>
-                        )}
                       </Link>
                     );
                   })}
@@ -155,7 +149,7 @@ export function AppLayout() {
             >
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
-            <Button variant="ghost" size="icon" className="relative" aria-label="Notifications" title="Notifications coming soon">
+            <Button variant="ghost" size="icon" className="relative opacity-50 cursor-not-allowed" aria-label="Notifications" title="Notifications coming soon" disabled>
               <Bell className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="icon" onClick={() => logout()} aria-label="Sign out">
