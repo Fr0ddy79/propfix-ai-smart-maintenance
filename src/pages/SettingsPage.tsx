@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { getProperties, createProperty, getProfiles, updateProfile } from "@/lib/data/queries";
+import { getProperties, createProperty, getProfiles } from "@/lib/data/queries";
 import type { Profile } from "@/lib/supabase";
 
 const sectionIcons = { Building2, Users, Bell, CreditCard, Puzzle, Shield };
@@ -46,12 +46,6 @@ export default function SettingsPage() {
       setNewProperty({ name: "", units: "", address: "" });
       setAddPropertyOpen(false);
     },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, ...rest }: { id: string } & Parameters<typeof updateProfile>[1]) =>
-      updateProfile(id, rest),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profiles"] }),
   });
 
   const toggleSection = (key: string) =>
