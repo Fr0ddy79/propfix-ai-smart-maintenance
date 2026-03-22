@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { createTicket, getProperties } from "@/lib/data/queries";
+import { createTicket, getProperties, triageTicket } from "@/lib/data/queries";
 
 interface NewTicketDialogProps {
   open: boolean;
@@ -33,14 +33,28 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
   });
 
   const createMutation = useMutation({
-    mutationFn: () => createTicket({
-      title: title.trim(),
-      description: description.trim() || title.trim(),
-      category: issueType,
-      priority,
-      property_id: propertyId || undefined,
-      unit: unit.trim() || undefined,
-    }),
+    mutationFn: async () => {
+      const titleTrim = title.trim();
+      const desc = description.trim() || titleTrim;
+
+      let aiTriageJson: Record<string, unknown> | undefined;
+      try {
+        const triage = await triageTicket(titleTrim, desc);
+        aiTriageJson = triage;
+      } catch (err) {
+        console.warn("AI triage unavailable, proceeding without it:", err);
+      }
+
+      return createTicket({
+        title: titleTrim,
+        description: desc,
+        category: issueType,
+        priority,
+        property_id: propertyId || undefined,
+        unit: unit.trim() || undefined,
+        ai_triage_json: aiTriageJson,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       onCreated?.();

@@ -5,7 +5,7 @@ import { ArrowLeft, Camera, Send, CheckCircle, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createTicket, getProperties } from "@/lib/data/queries";
+import { createTicket, getProperties, triageTicket } from "@/lib/data/queries";
 import type { Property } from "@/lib/supabase";
 
 interface PhotoPreview {
@@ -53,15 +53,28 @@ export default function TenantPortal() {
   });
 
   const submitMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const unitInfo = unit.trim() ? ` Unit ${unit.trim()}` : "";
       const nameInfo = name.trim() ? ` (${name.trim()})` : "";
+      const title = `${category} issue${unitInfo}${nameInfo}`;
+      const desc = description.trim() || `${category} issue submitted via tenant portal.`;
+
+      // Call AI triage to get structured analysis
+      let aiTriageJson: Record<string, unknown> | undefined;
+      try {
+        const triage = await triageTicket(title, desc);
+        aiTriageJson = triage;
+      } catch (err) {
+        console.warn("AI triage unavailable, proceeding without it:", err);
+      }
+
       return createTicket({
-        title: `${category} issue${unitInfo}${nameInfo}`,
-        description: description.trim() || `${category} issue submitted via tenant portal.`,
+        title,
+        description: desc,
         category,
         priority: priority as "low" | "medium" | "high" | "urgent",
         property_id: propertyId || undefined,
+        ai_triage_json: aiTriageJson,
       });
     },
     onSuccess: (data) => {

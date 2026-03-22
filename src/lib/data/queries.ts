@@ -404,6 +404,30 @@ export async function updateProfile(id: string, updates: Partial<Pick<Profile, "
   return data;
 }
 
+// ─── AI Triage ─────────────────────────────────────────────────────────────────
+
+export interface TriageResult {
+  category: string;
+  priority: "low" | "medium" | "high" | "urgent";
+  urgency: "low" | "medium" | "high" | "urgent";
+  suggestedTrade: string;
+  reasoning: string;
+}
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+
+export async function triageTicket(title: string, description: string): Promise<TriageResult> {
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/ai-triage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, description }),
+  });
+  if (!response.ok) {
+    throw new Error(`Triage failed: ${response.statusText}`);
+  }
+  return response.json();
+}
+
 // ─── Dashboard stats ──────────────────────────────────────────────────────────
 
 export async function getDashboardStats() {
