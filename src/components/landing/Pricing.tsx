@@ -18,7 +18,7 @@ const plans = [
       "Email notifications",
       "Basic reporting",
     ],
-    cta: "Login to Demo",
+    cta: "Try Free Demo",
     ctaHref: "/login",
     highlight: false,
   },
@@ -37,7 +37,7 @@ const plans = [
       "Custom workflows",
       "API access",
     ],
-    cta: "Login to Demo",
+    cta: "Try Free Demo",
     ctaHref: "/login",
     highlight: true,
   },
@@ -56,8 +56,8 @@ const plans = [
       "White-label tenant portal",
       "On-premise option",
     ],
-    cta: "Contact Sales",
-    ctaHref: "mailto:sales@propfix.ai",
+    cta: "Talk to Sales",
+    ctaHref: "mailto:sales@propfix.ai?subject=Enterprise%20Inquiry",
     highlight: false,
   },
 ];
@@ -70,7 +70,7 @@ export function Pricing() {
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Simple, transparent pricing</h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Explore the full platform with demo access. No credit card required.
+            Try the full platform free for 14 days. No credit card required.
           </p>
         </div>
 

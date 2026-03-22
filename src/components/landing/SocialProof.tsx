@@ -2,10 +2,10 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Building2, CheckCircle } from "lucide-react";
 
 const trustPoints = [
-  "Property managers handling 20–250 units",
+  "Trusted by managers handling 50–10,000+ units",
   "SOC 2 compliant infrastructure",
   "Tenant data never sold or shared",
-  "Setup in under 30 minutes",
+  "Live in 30 minutes — no IT department required",
 ];
 
 export function SocialProof() {

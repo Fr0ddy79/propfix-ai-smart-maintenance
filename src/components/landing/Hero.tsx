@@ -34,7 +34,7 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <Link to="/login">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all h-12 px-8 text-base font-semibold">
-                Login to Demo
+                Try Manager Demo
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
@@ -64,10 +64,10 @@ export function Hero() {
               {/* Mini dashboard mockup */}
               <div className="grid grid-cols-4 gap-3 mb-4">
                 {[
-                  { label: "Open Tickets", value: "12", color: "text-status-new" },
-                  { label: "In Progress", value: "8", color: "text-status-in-progress" },
-                  { label: "Completed (7d)", value: "23", color: "text-status-completed" },
-                  { label: "Avg Response", value: "1.4h", color: "text-primary" },
+                  { label: "Open Tickets", value: "4", color: "text-status-new" },
+                  { label: "In Progress", value: "2", color: "text-status-in-progress" },
+                  { label: "Completed (7d)", value: "11", color: "text-status-completed" },
+                  { label: "Avg Response", value: "1.8h", color: "text-primary" },
                 ].map((kpi) => (
                   <div key={kpi.label} className="rounded-lg bg-card border border-border p-3">
                     <div className="text-xs text-muted-foreground mb-1">{kpi.label}</div>
@@ -79,9 +79,9 @@ export function Hero() {
                 <div className="col-span-2 rounded-lg bg-card border border-border p-3">
                   <div className="text-xs font-medium text-foreground mb-2">Action Required</div>
                   {[
-                    { ticket: "Leaking faucet, Unit 4B", urgency: "Urgent" },
-                    { ticket: "AC not cooling, Unit 12A", urgency: "High" },
-                    { ticket: "Garbage disposal jam, Unit 7C", urgency: "Medium" },
+                    { ticket: "Water heater issue, 425 Elm St #3A", urgency: "Urgent", assignee: "Mike's Plumbing" },
+                    { ticket: "HVAC not cooling, 188 Oak Ave #12", urgency: "High", assignee: "Unassigned" },
+                    { ticket: "Broken outlet, 425 Elm St #7B", urgency: "Medium", assignee: "Sparky Electric" },
                   ].map((t, i) => (
                     <div key={i} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
                       <span className="text-xs text-muted-foreground">{t.ticket}</span>
@@ -91,7 +91,7 @@ export function Hero() {
                           t.urgency === "High" ? "bg-status-in-progress/10 text-status-in-progress" :
                           "bg-primary/10 text-primary"
                         }`}>{t.urgency}</span>
-                        <span className="text-[10px] font-medium text-primary">Assign →</span>
+                        <span className="text-[10px] text-muted-foreground">{t.assignee === "Unassigned" ? "Assign →" : t.assignee}</span>
                       </div>
                     </div>
                   ))}
@@ -99,13 +99,14 @@ export function Hero() {
                 <div className="rounded-lg bg-card border border-border p-3">
                   <div className="text-xs font-medium text-foreground mb-2">Today's Jobs</div>
                   {[
-                    { job: "HVAC Repair", time: "9:00 AM", status: "In Progress" },
-                    { job: "Lockout Assist", time: "10:30 AM", status: "Scheduled" },
-                    { job: "Plumbing Fix", time: "2:00 PM", status: "Scheduled" },
+                    { job: "HVAC Repair", time: "9–11 AM", crew: "CoolAir HVAC" },
+                    { job: "Lockout Assist", time: "1:30 PM", crew: "Metro Locksmith" },
+                    { job: "Plumbing Fix", time: "3–4 PM", crew: "Mike's Plumbing" },
                   ].map((j, i) => (
                     <div key={i} className="py-1.5 text-xs text-muted-foreground border-b border-border last:border-0">
                       <div className="font-medium text-foreground">{j.job}</div>
-                      <div className="text-[10px] text-muted-foreground">{j.time} · {j.status}</div>
+                      <div className="text-[10px] text-muted-foreground">{j.time}</div>
+                      <div className="text-[10px] text-primary">{j.crew}</div>
                     </div>
                   ))}
                 </div>
