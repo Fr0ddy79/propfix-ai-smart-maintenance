@@ -51,6 +51,7 @@ export default function TicketDetail() {
     if (ticket?.scheduled_date && !scheduleDate) {
       setScheduleDate(ticket.scheduled_date);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticket?.scheduled_date]);
 
   const assignMutation = useMutation({
