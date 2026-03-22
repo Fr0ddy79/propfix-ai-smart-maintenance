@@ -93,7 +93,7 @@ export default function Dashboard() {
         <Link to="/app/tickets?status=in_progress" className="rounded-xl border border-border bg-card p-4 card-shadow hover:card-shadow-hover transition-shadow group cursor-pointer">
           <div className="text-xs text-muted-foreground mb-1">In Progress</div>
           <div className="text-2xl font-bold tabular-nums text-status-in-progress">{isLoading ? "—" : inProgressCount}</div>
-          <div className="text-xs text-muted-foreground mt-1">{overdue.length} overdue</div>
+          <div className="text-xs text-muted-foreground mt-1">{inProgressCount === 1 ? "active job" : "active jobs"}</div>
         </Link>
         <Link to="/app/tickets?status=completed" className="rounded-xl border border-border bg-card p-4 card-shadow hover:card-shadow-hover transition-shadow group cursor-pointer">
           <div className="text-xs text-muted-foreground mb-1">Completed</div>

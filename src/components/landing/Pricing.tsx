@@ -86,7 +86,7 @@ export function Pricing() {
             >
               {plan.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
-                  Most Popular
+                  Best Value
                 </div>
               )}
               <div className="mb-5">
