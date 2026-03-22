@@ -137,17 +137,46 @@ export default function Tickets() {
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                         <TicketIcon className="w-6 h-6 text-primary" />
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">No tickets found</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">No tickets match your current filters.</p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-primary text-primary-foreground hover:bg-primary/90"
-                        onClick={() => setDialogOpen(true)}
-                      >
-                        <Plus className="w-3.5 h-3.5 mr-1.5" /> Create Ticket
-                      </Button>
+                      {tickets.length === 0 ? (
+                        <>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">No tickets yet</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">Create your first ticket to get started.</p>
+                          </div>
+                          <Button
+                            size="sm"
+                            className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            onClick={() => setDialogOpen(true)}
+                          >
+                            <Plus className="w-3.5 h-3.5 mr-1.5" /> Create Ticket
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">No tickets match your filters</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">Try adjusting your search or filter, or clear them below.</p>
+                          </div>
+                          <div className="flex gap-2">
+                            {(search || statusFilter !== "all") && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => { setSearch(""); setStatusFilter("all"); }}
+                              >
+                                Clear filters
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              className="bg-primary text-primary-foreground hover:bg-primary/90"
+                              onClick={() => setDialogOpen(true)}
+                            >
+                              <Plus className="w-3.5 h-3.5 mr-1.5" /> Create Ticket
+                            </Button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
