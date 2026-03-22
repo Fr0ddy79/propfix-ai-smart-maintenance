@@ -63,8 +63,8 @@ export default function CalendarPage() {
 
       <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
         {/* Day headers */}
-        <div className="overflow-x-auto md:overflow-visible">
-          <div className="grid grid-cols-5 divide-x divide-border border-b border-border min-w-[500px] md:min-w-0">
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-5 divide-x divide-border border-b border-border">
             {days.map((day, i) => {
               const isToday = isSameDay(day, today);
               const dayEvents = eventsByDay[i];
@@ -88,8 +88,8 @@ export default function CalendarPage() {
         </div>
 
         {/* Day columns */}
-        <div className="overflow-x-auto md:overflow-visible">
-          <div className="grid grid-cols-5 divide-x divide-border min-w-[500px] md:min-w-0">
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-5 divide-x divide-border">
             {days.map((day, i) => {
               const dayEvents = eventsByDay[i];
               return (
