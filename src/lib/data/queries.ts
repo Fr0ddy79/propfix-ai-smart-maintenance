@@ -313,6 +313,23 @@ export async function createProperty(property: {
   return data;
 }
 
+export async function getProfiles(): Promise<Profile[]> {
+  const { data, error } = await supabase.from("profiles").select("*").order("full_name");
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function updateProfile(id: string, updates: Partial<Pick<Profile, "full_name" | "phone">>) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 // ─── Dashboard stats ──────────────────────────────────────────────────────────
 
 export async function getDashboardStats() {

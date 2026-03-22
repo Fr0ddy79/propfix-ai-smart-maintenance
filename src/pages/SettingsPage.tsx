@@ -1,39 +1,43 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Building2, Users, Bell, CreditCard, Puzzle, Shield, ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { Building2, Users, Bell, CreditCard, Puzzle, Shield, ChevronDown, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { getProperties, createProperty } from "@/lib/data/queries";
-
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-}
-
-const teamMembers: TeamMember[] = [
-  { id: "m1", name: "Alex Rivera", role: "Admin", email: "alex@riversidepm.com" },
-  { id: "m2", name: "Jordan Lee", role: "Manager", email: "jordan@riversidepm.com" },
-  { id: "m3", name: "Casey Patel", role: "Viewer", email: "casey@riversidepm.com" },
-];
+import { Switch } from "@/components/ui/switch";
+import { getProperties, createProperty, getProfiles, updateProfile } from "@/lib/data/queries";
+import type { Profile } from "@/lib/supabase";
 
 const sectionIcons = { Building2, Users, Bell, CreditCard, Puzzle, Shield };
 const sectionKeys = ["Properties", "Team Members", "Notifications", "Billing", "Integrations", "Security"] as const;
+
+interface NotificationPrefs {
+  emailNotifications: boolean;
+  smsUrgent: boolean;
+  weeklyDigest: boolean;
+}
 
 export default function SettingsPage() {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ Properties: true });
   const [addPropertyOpen, setAddPropertyOpen] = useState(false);
   const [newProperty, setNewProperty] = useState({ name: "", units: "", address: "" });
+  const [notifications, setNotifications] = useState<NotificationPrefs>({
+    emailNotifications: true,
+    smsUrgent: true,
+    weeklyDigest: false,
+  });
+  const queryClient = useQueryClient();
 
   const { data: properties = [] } = useQuery({
     queryKey: ["properties"],
     queryFn: getProperties,
   });
 
-  const queryClient = useQueryClient();
+  const { data: profiles = [] } = useQuery({
+    queryKey: ["profiles"],
+    queryFn: getProfiles,
+  });
 
   const createMutation = useMutation({
     mutationFn: createProperty,
@@ -44,8 +48,14 @@ export default function SettingsPage() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...rest }: { id: string } & Parameters<typeof updateProfile>[1]) =>
+      updateProfile(id, rest),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profiles"] }),
+  });
+
   const toggleSection = (key: string) =>
-    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const handleAddProperty = () => {
     if (!newProperty.name.trim() || !newProperty.units) return;
@@ -56,13 +66,19 @@ export default function SettingsPage() {
     });
   };
 
+  const nextBillingDate = (() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  })();
+
   return (
     <div className="p-4 lg:p-6 space-y-4 animate-fade-in">
       <h1 className="text-xl font-bold text-foreground">Settings</h1>
 
       <div className="grid md:grid-cols-2 gap-4">
         {/* Properties */}
-        <Collapsible open={openSections.Properties} onOpenChange={(v) => setOpenSections(prev => ({ ...prev, Properties: v }))}>
+        <Collapsible open={openSections.Properties} onOpenChange={(v) => setOpenSections((prev) => ({ ...prev, Properties: v }))}>
           <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
             <CollapsibleTrigger asChild>
               <button className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/20 transition-colors">
@@ -101,7 +117,7 @@ export default function SettingsPage() {
         </Collapsible>
 
         {/* Team Members */}
-        <Collapsible open={openSections["Team Members"]} onOpenChange={(v) => setOpenSections(prev => ({ ...prev, "Team Members": v }))}>
+        <Collapsible open={openSections["Team Members"]} onOpenChange={(v) => setOpenSections((prev) => ({ ...prev, "Team Members": v }))}>
           <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
             <CollapsibleTrigger asChild>
               <button className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/20 transition-colors">
@@ -110,23 +126,26 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex-1 text-left">
                   <h3 className="text-sm font-semibold text-foreground">Team Members</h3>
-                  <p className="text-xs text-muted-foreground">{teamMembers.length} members</p>
+                  <p className="text-xs text-muted-foreground">{profiles.length} members</p>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${!openSections["Team Members"] ? "-rotate-90" : ""}`} />
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="divide-y divide-border border-t border-border">
-                {teamMembers.map((member) => (
+                {profiles.map((member: Profile) => (
                   <div key={member.id} className="px-5 py-3 flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-medium text-foreground">{member.name}</div>
+                      <div className="text-sm font-medium text-foreground">{member.full_name ?? member.email}</div>
                       <div className="text-xs text-muted-foreground">{member.email}</div>
                     </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{member.role}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium capitalize">{member.role}</span>
                   </div>
                 ))}
-                <button className="w-full flex items-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors" onClick={() => window.alert("Team invites coming soon — share your dashboard URL to get started.")}>
+                <button
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors"
+                  onClick={() => window.alert("Team invites coming soon — share your dashboard URL to get started.")}
+                >
                   <Plus className="w-3.5 h-3.5" /> Invite Member
                 </button>
               </div>
@@ -135,25 +154,46 @@ export default function SettingsPage() {
         </Collapsible>
 
         {/* Notifications */}
-        <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
-          <div className="flex items-center gap-3 px-5 py-4">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Bell className="w-4 h-4 text-primary" />
-            </div>
-            <div>
-              <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
-              <p className="text-xs text-muted-foreground">Alert preferences</p>
-            </div>
-          </div>
-          <div className="divide-y divide-border border-t border-border">
-            {["Email notifications", "SMS for urgent tickets", "Weekly digest"].map((item) => (
-              <div key={item} className="flex items-center justify-between px-5 py-3">
-                <span className="text-sm text-foreground">{item}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-status-completed/10 text-status-completed font-medium">Enabled</span>
+        <Collapsible open={openSections.Notifications} onOpenChange={(v) => setOpenSections((prev) => ({ ...prev, Notifications: v }))}>
+          <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
+            <CollapsibleTrigger asChild>
+              <button className="w-full flex items-center gap-3 px-5 py-4 hover:bg-muted/20 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Bell className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {Object.values(notifications).filter(Boolean).length} of {Object.keys(notifications).length} enabled
+                  </p>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${!openSections.Notifications ? "-rotate-90" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="divide-y divide-border border-t border-border">
+                {[
+                  { key: "emailNotifications", label: "Email notifications", description: "Receive ticket updates via email" },
+                  { key: "smsUrgent", label: "SMS for urgent tickets", description: "Text alerts for urgent and high-priority" },
+                  { key: "weeklyDigest", label: "Weekly digest", description: "Summary of all ticket activity each week" },
+                ].map(({ key, label, description }) => (
+                  <div key={key} className="flex items-center justify-between px-5 py-3">
+                    <div>
+                      <div className="text-sm font-medium text-foreground">{label}</div>
+                      <div className="text-xs text-muted-foreground">{description}</div>
+                    </div>
+                    <Switch
+                      checked={notifications[key as keyof NotificationPrefs]}
+                      onCheckedChange={(checked) =>
+                        setNotifications((prev) => ({ ...prev, [key]: checked }))
+                      }
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            </CollapsibleContent>
           </div>
-        </div>
+        </Collapsible>
 
         {/* Billing */}
         <div className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
@@ -169,7 +209,7 @@ export default function SettingsPage() {
           <div className="divide-y divide-border border-t border-border">
             {[
               { label: "Plan", value: "Professional ($249/mo)" },
-              { label: "Next billing", value: (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }); })() },
+              { label: "Next billing", value: nextBillingDate },
               { label: "Payment", value: "Visa ****4242" },
             ].map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between px-5 py-3">
@@ -177,7 +217,10 @@ export default function SettingsPage() {
                 <span className="text-sm font-medium text-foreground">{value}</span>
               </div>
             ))}
-            <button className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors" onClick={() => window.alert("Billing management coming soon — contact hello@propfix.ai for changes.")}>
+            <button
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors"
+              onClick={() => window.alert("Billing management coming soon — contact hello@propfix.ai for changes.")}
+            >
               Manage Subscription
             </button>
           </div>
@@ -196,7 +239,7 @@ export default function SettingsPage() {
               <Input
                 id="prop-name"
                 value={newProperty.name}
-                onChange={e => setNewProperty(p => ({ ...p, name: e.target.value }))}
+                onChange={(e) => setNewProperty((p) => ({ ...p, name: e.target.value }))}
                 placeholder="e.g. Sunset View Apartments"
               />
             </div>
@@ -207,7 +250,7 @@ export default function SettingsPage() {
                 type="number"
                 min="1"
                 value={newProperty.units}
-                onChange={e => setNewProperty(p => ({ ...p, units: e.target.value }))}
+                onChange={(e) => setNewProperty((p) => ({ ...p, units: e.target.value }))}
                 placeholder="e.g. 12"
               />
             </div>
@@ -216,7 +259,7 @@ export default function SettingsPage() {
               <Input
                 id="prop-address"
                 value={newProperty.address}
-                onChange={e => setNewProperty(p => ({ ...p, address: e.target.value }))}
+                onChange={(e) => setNewProperty((p) => ({ ...p, address: e.target.value }))}
                 placeholder="e.g. 123 Main St, Austin TX"
               />
             </div>

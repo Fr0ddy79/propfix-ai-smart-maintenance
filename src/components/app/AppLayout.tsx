@@ -1,11 +1,12 @@
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import {
-  LayoutDashboard, Ticket, Calendar, Users, BarChart3, Settings, ChevronLeft, Menu, LogOut, Bell, X, Sun, Moon,
+  LayoutDashboard, Ticket, Calendar, Users, BarChart3, Settings, ChevronLeft, Menu, LogOut, Bell, Sun, Moon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/lib/authContext";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/app/dashboard" },
@@ -23,6 +24,7 @@ export function AppLayout() {
     window.matchMedia("(prefers-color-scheme: dark)").matches
   );
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
@@ -133,8 +135,12 @@ export function AppLayout() {
               </SheetContent>
             </Sheet>
             <div>
-              <div className="text-sm font-semibold text-foreground">{greeting}, Alex</div>
-              <div className="text-xs text-muted-foreground">Riverside Property Group</div>
+              <div className="text-sm font-semibold text-foreground">
+                {greeting}, {user?.profile?.full_name ?? user?.email?.split("@")[0] ?? "there"}
+              </div>
+              <div className="text-xs text-muted-foreground capitalize">
+                {user?.profile?.role ?? "Manager"}
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -150,11 +156,9 @@ export function AppLayout() {
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
             </Button>
-            <Link to="/">
-              <Button variant="ghost" size="icon">
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </Link>
+            <Button variant="ghost" size="icon" onClick={() => logout()} title="Sign out">
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         </header>
 

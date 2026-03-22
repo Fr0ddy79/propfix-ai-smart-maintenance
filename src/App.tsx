@@ -3,8 +3,11 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/lib/authContext";
+import { ProtectedRoute } from "@/components/app/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import LoginPage from "./pages/LoginPage";
 import { AppLayout } from "@/components/app/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Tickets from "./pages/Tickets";
@@ -77,23 +80,33 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/tenant" element={<TenantPortal />} />
-          <Route path="/contractor" element={<ContractorPortal />} />
-          <Route path="/app" element={<AppLayout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="tickets" element={<Tickets />} />
-            <Route path="tickets/:id" element={<TicketDetail />} />
-            <Route path="calendar" element={<CalendarPage />} />
-            <Route path="contractors" element={<Contractors />} />
-            <Route path="analytics" element={<AnalyticsPlaceholder />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/tenant" element={<TenantPortal />} />
+            <Route path="/contractor" element={<ContractorPortal />} />
+            <Route
+              path="/app"
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="tickets" element={<Tickets />} />
+              <Route path="tickets/:id" element={<TicketDetail />} />
+              <Route path="calendar" element={<CalendarPage />} />
+              <Route path="contractors" element={<Contractors />} />
+              <Route path="analytics" element={<AnalyticsPlaceholder />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
