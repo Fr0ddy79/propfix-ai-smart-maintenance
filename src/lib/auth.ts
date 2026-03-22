@@ -16,7 +16,7 @@ const DEMO_USER: AuthUser = {
     id: "demo-user-id",
     email: DEMO_EMAIL,
     full_name: "Alex Rivera",
-    role: "property_manager",
+    role: "manager",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
