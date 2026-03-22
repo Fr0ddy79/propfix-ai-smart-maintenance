@@ -44,7 +44,7 @@ export default function TicketDetail() {
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [messageText, setMessageText] = useState("");
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleDate, setScheduleDate] = useState(() => ticket?.scheduled_date ?? "");
 
   const assignMutation = useMutation({
     mutationFn: ({ ticketId, contractorId }: { ticketId: string; contractorId: string }) =>
@@ -280,16 +280,12 @@ export default function TicketDetail() {
             </div>
           </div>
 
-          {/* Attached Photos placeholder */}
+          {/* Attached Photos */}
           <div className="rounded-xl border border-border bg-card p-5 card-shadow">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Camera className="w-4 h-4 text-muted-foreground" /> Attached Photos
             </h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-muted/30 transition-colors">
-                <span className="text-xs text-muted-foreground">+ Add</span>
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground">Photos can be attached when marking a job complete.</p>
           </div>
         </div>
 
@@ -346,7 +342,9 @@ export default function TicketDetail() {
                   {new Date(ticket.scheduled_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                 </p>
                 <div className="flex gap-2">
+                  <label for="schedule-date-update" className="sr-only">Update schedule date</label>
                   <input
+                    id="schedule-date-update"
                     type="date"
                     className="flex-1 text-xs border border-border rounded-md px-2 py-1.5 bg-background text-foreground"
                     value={scheduleDate}
@@ -372,7 +370,9 @@ export default function TicketDetail() {
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">No date scheduled yet.</p>
                 <div className="flex gap-2">
+                  <label for="schedule-date-new" className="sr-only">Schedule date</label>
                   <input
+                    id="schedule-date-new"
                     type="date"
                     className="flex-1 text-xs border border-border rounded-md px-2 py-1.5 bg-background text-foreground"
                     value={scheduleDate}
