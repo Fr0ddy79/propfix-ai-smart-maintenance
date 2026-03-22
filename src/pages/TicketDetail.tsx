@@ -332,7 +332,7 @@ export default function TicketDetail() {
               <Wrench className="w-4 h-4 text-muted-foreground" /> Assign Contractor
             </h3>
             {ticket.contractor_id ? (
-              <div className="p-3 rounded-lg bg-status-completed/8 border border-status-completed/15">
+              <div className="p-3 rounded-lg bg-status-completed/10 border border-status-completed/20">
                 <div className="text-sm font-medium text-foreground">{ticket.contractor_name ?? "Contractor"}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">Currently assigned</div>
                 {ticket.status !== "completed" && (

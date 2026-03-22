@@ -77,7 +77,7 @@ export default function Dashboard() {
             <span className="text-status-urgent font-semibold">Urgent needs attention</span>
           </div>
         )}
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-status-in-progress/8 border border-status-in-progress/15 text-sm">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-status-in-progress/10 border border-status-in-progress/20 text-sm">
           <Clock className="w-4 h-4 text-status-in-progress" />
           <span className="text-status-in-progress font-medium">{unassignedCount} unassigned request{unassignedCount !== 1 ? "s" : ""}</span>
         </div>

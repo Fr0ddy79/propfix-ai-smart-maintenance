@@ -132,7 +132,7 @@ export default function Tickets() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-16 text-center">
+                  <td colSpan={99} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                         <TicketIcon className="w-6 h-6 text-primary" />
