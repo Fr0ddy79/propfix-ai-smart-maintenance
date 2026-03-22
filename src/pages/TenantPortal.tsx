@@ -161,7 +161,7 @@ export default function TenantPortal() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">Property</label>
+            <label htmlFor="property-select" className="text-sm font-medium text-foreground mb-1.5 block">Property</label>
             <select
               id="property-select"
               value={propertyId}
@@ -177,8 +177,9 @@ export default function TenantPortal() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Issue Type</label>
+              <label htmlFor="issue-type" className="text-sm font-medium text-foreground mb-1.5 block">Issue Type</label>
               <select
+                id="issue-type"
                 value={category}
                 onChange={e => setCategory(e.target.value)}
                 className="w-full h-10 px-3 rounded-md border border-input bg-card text-sm text-foreground"
@@ -189,8 +190,9 @@ export default function TenantPortal() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Urgency</label>
+              <label htmlFor="urgency" className="text-sm font-medium text-foreground mb-1.5 block">Urgency</label>
               <select
+                id="urgency"
                 value={priority}
                 onChange={e => setPriority(e.target.value)}
                 className="w-full h-10 px-3 rounded-md border border-input bg-card text-sm text-foreground"

@@ -427,7 +427,11 @@ export default function TicketDetail() {
               <MessageSquare className="w-4 h-4 text-muted-foreground" /> Messages
             </h3>
             <div className="space-y-3 mb-3 max-h-48 overflow-y-auto">
-              {messages.map(msg => (
+              {messages.length === 0 ? (
+                <div className="text-center py-6 text-xs text-muted-foreground/60">
+                  No messages yet. Send a message to start the conversation.
+                </div>
+              ) : messages.map(msg => (
                 <div key={msg.id} className={`p-3 rounded-lg text-xs ${msg.is_system_message ? "bg-primary/5 border border-primary/10" : "bg-muted/50"}`}>
                   <div className="flex items-center gap-2 mb-1">
                     <span className={`text-xs font-medium ${msg.is_system_message ? "text-primary" : "text-foreground"}`}>

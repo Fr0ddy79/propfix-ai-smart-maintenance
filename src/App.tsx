@@ -15,6 +15,7 @@ import TicketDetail from "./pages/TicketDetail";
 import CalendarPage from "./pages/CalendarPage";
 import Contractors from "./pages/Contractors";
 import SettingsPage from "./pages/SettingsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 import TenantPortal from "./pages/TenantPortal";
 import ContractorPortal from "./pages/ContractorPortal";
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Clock, CheckCircle, Play, Phone, ChevronDown } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, CheckCircle, Play, Phone, ChevronDown, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { CompletionProofDialog } from "@/components/app/CompletionProofDialog";
@@ -62,9 +62,9 @@ export default function ContractorPortal() {
                 onClick={() => setSwitcherOpen(o => !o)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted/30 transition-colors text-sm"
               >
-                <span className="text-foreground font-medium">{activeContractor?.company_name ?? "Select contractor"}</span>
-                <span className="text-muted-foreground text-xs">{activeContractor?.specialty}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-foreground font-medium truncate max-w-[120px] sm:max-w-[none]">{activeContractor?.company_name ?? "Select contractor"}</span>
+                <span className="text-muted-foreground text-xs hidden sm:inline">{activeContractor?.specialty}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
               </button>
               {switcherOpen && (
                 <div className="absolute right-0 top-full mt-1 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
@@ -100,12 +100,20 @@ export default function ContractorPortal() {
         </div>
 
         {!activeContractor ? (
-          <div className="text-center py-12 text-sm text-muted-foreground">
-            No contractors found. Connect your account to see assigned jobs.
+          <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Wrench className="w-6 h-6 text-primary" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground mb-1">No contractor account</h3>
+            <p className="text-xs text-muted-foreground">Connect your account to see assigned jobs.</p>
           </div>
         ) : contractorJobs.length === 0 ? (
-          <div className="text-center py-12 text-sm text-muted-foreground">
-            No jobs assigned to {activeContractor.company_name} right now.
+          <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
+            <div className="w-12 h-12 rounded-full bg-status-completed/10 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-6 h-6 text-status-completed" />
+            </div>
+            <h3 className="text-sm font-semibold text-foreground mb-1">All caught up</h3>
+            <p className="text-xs text-muted-foreground">No jobs assigned to {activeContractor.company_name} right now.</p>
           </div>
         ) : (
           <div className="space-y-4">
