@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Bot, User, Wrench, Clock, MapPin, Camera, MessageSquare, CheckCircle, Play, Send, Zap } from "lucide-react";
@@ -45,6 +45,13 @@ export default function TicketDetail() {
   const [messageText, setMessageText] = useState("");
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [scheduleDate, setScheduleDate] = useState(() => ticket?.scheduled_date ?? "");
+
+  // Sync scheduleDate when ticket data first loads (lazy init only captures undefined)
+  useEffect(() => {
+    if (ticket?.scheduled_date && !scheduleDate) {
+      setScheduleDate(ticket.scheduled_date);
+    }
+  }, [ticket?.scheduled_date]);
 
   const assignMutation = useMutation({
     mutationFn: ({ ticketId, contractorId }: { ticketId: string; contractorId: string }) =>
