@@ -138,8 +138,10 @@ export default function SettingsPage() {
                   </div>
                 ))}
                 <button
-                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-muted-foreground cursor-not-allowed opacity-60"
+                  disabled
                   onClick={() => toast({ title: "Coming soon", description: "Team invites will be available in the next release." })}
+                  title="Team invites coming soon"
                 >
                   <Plus className="w-3.5 h-3.5" /> Invite Member
                 </button>
