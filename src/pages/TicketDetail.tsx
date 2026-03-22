@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { CompletionProofDialog } from "@/components/app/CompletionProofDialog";
-import { getTicketById, getContractors, getMessages, addMessage, assignContractor, updateTicketStatus, completeTicket, setTicketSchedule } from "@/lib/data/queries";
+import { getTicketById, getContractors, getMessages, getTicketAttachments, addMessage, assignContractor, updateTicketStatus, completeTicket, setTicketSchedule } from "@/lib/data/queries";
 import type { TicketRow } from "@/lib/data/queries";
 
 interface TimelineEntry {
@@ -38,6 +38,12 @@ export default function TicketDetail() {
   const { data: messages = [] } = useQuery({
     queryKey: ["messages", id],
     queryFn: () => getMessages(id!),
+    enabled: !!id,
+  });
+
+  const { data: attachments = [] } = useQuery({
+    queryKey: ["ticket-attachments", id],
+    queryFn: () => getTicketAttachments(id!),
     enabled: !!id,
   });
 
@@ -102,6 +108,7 @@ export default function TicketDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["ticket", id] });
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["ticket-attachments", id] });
     },
   });
 
@@ -293,7 +300,27 @@ export default function TicketDetail() {
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Camera className="w-4 h-4 text-muted-foreground" /> Attached Photos
             </h3>
-            <p className="text-xs text-muted-foreground">Photos can be attached when marking a job complete.</p>
+            {attachments.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No photos attached yet.</p>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {attachments.map(att => (
+                  <a
+                    key={att.id}
+                    href={att.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-16 h-16 rounded-lg overflow-hidden border border-border hover:border-primary transition-colors"
+                  >
+                    <img
+                      src={att.file_url}
+                      alt={att.file_name}
+                      className="w-full h-full object-cover"
+                    />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

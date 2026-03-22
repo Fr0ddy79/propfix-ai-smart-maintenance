@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Clock, CheckCircle, Play, Phone, ChevronDown, Wrench } from "lucide-react";
@@ -14,6 +14,28 @@ export default function ContractorPortal() {
   const [completionJob, setCompletionJob] = useState<TicketRow | null>(null);
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const queryClient = useQueryClient();
+  const switcherRef = useRef<HTMLDivElement>(null);
+
+  // Close switcher on Escape or click outside
+  useEffect(() => {
+    if (!switcherOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSwitcherOpen(false);
+      }
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (switcherRef.current && !switcherRef.current.contains(e.target as Node)) {
+        setSwitcherOpen(false);
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    document.addEventListener("mousedown", handleClick);
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [switcherOpen]);
 
   const { data: contractors = [] } = useQuery({
     queryKey: ["contractors"],
@@ -58,11 +80,15 @@ export default function ContractorPortal() {
           </div>
           {/* Contractor switcher */}
           {contractors.length > 0 && (
-            <div className="relative">
+            <div className="relative" ref={switcherRef}>
               <button
+                ref={(el) => {
+                  if (el && switcherOpen) el.focus();
+                }}
                 onClick={() => setSwitcherOpen(o => !o)}
                 aria-expanded={switcherOpen}
                 aria-haspopup="listbox"
+                aria-label={`Contractor: ${activeContractor?.company_name ?? "Select"}`}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-muted/30 transition-colors text-sm"
               >
                 <span className="text-foreground font-medium truncate max-w-[120px] sm:max-w-[none]">{activeContractor?.company_name ?? "Select contractor"}</span>
@@ -70,15 +96,24 @@ export default function ContractorPortal() {
                 <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground flex-shrink-0 transition-transform", switcherOpen && "rotate-180")} />
               </button>
               {switcherOpen && (
-                <div className="absolute right-0 top-full mt-1 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
+                <div
+                  className="absolute right-0 top-full mt-1 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in"
+                  role="listbox"
+                  aria-label="Select contractor"
+                >
                   <div className="px-4 py-2 border-b border-border">
                     <p className="text-xs text-muted-foreground">Demo mode — select contractor</p>
                   </div>
                   {contractors.map(c => (
                     <button
                       key={c.id}
+                      role="option"
+                      aria-selected={c.id === activeContractorId}
                       onClick={() => { setActiveContractorId(c.id); setSwitcherOpen(false); }}
-                      className={`w-full text-left px-4 py-2.5 hover:bg-muted/30 transition-colors ${c.id === activeContractorId ? "bg-primary/5" : ""}`}
+                      className={cn(
+                        "w-full text-left px-4 py-2.5 hover:bg-muted/30 transition-colors",
+                        c.id === activeContractorId ? "bg-primary/5" : ""
+                      )}
                     >
                       <div className="text-sm font-medium text-foreground">{c.company_name}</div>
                       <div className="text-xs text-muted-foreground">{c.specialty} · {c.is_available ? "Available" : "Offline"}</div>

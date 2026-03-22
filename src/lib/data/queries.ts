@@ -343,6 +343,16 @@ export async function getMessages(ticketId: string): Promise<Message[]> {
   return data ?? [];
 }
 
+export async function getTicketAttachments(ticketId: string): Promise<Attachment[]> {
+  const { data, error } = await supabase
+    .from("attachments")
+    .select("*")
+    .eq("ticket_id", ticketId)
+    .order("created_at");
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function addMessage(ticketId: string, content: string, senderId?: string) {
   const { data, error } = await supabase
     .from("messages")
@@ -410,6 +420,40 @@ export async function updateProfile(id: string, updates: Partial<Pick<Profile, "
     .single();
   if (error) throw error;
   return data;
+}
+
+export async function uploadTenantPhotos(
+  photos: File[],
+  ticketId: string
+): Promise<{ file_name: string; file_url: string; file_type: string }[]> {
+  const results: { file_name: string; file_url: string; file_type: string }[] = [];
+  for (const file of photos) {
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const fileName = `${ticketId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage
+      .from("tenant-uploads")
+      .upload(fileName, file, { cacheControl: "3600", upsert: false });
+    if (error) {
+      console.error("Tenant photo upload failed:", error.message);
+      continue;
+    }
+    const { data: urlData } = supabase.storage
+      .from("tenant-uploads")
+      .getPublicUrl(fileName);
+    results.push({ file_name: file.name, file_url: urlData.publicUrl, file_type: file.type });
+  }
+  return results;
+}
+
+export async function createTicketAttachments(
+  ticketId: string,
+  attachments: { file_name: string; file_url: string; file_type: string }[],
+  uploadedBy?: string
+) {
+  if (attachments.length === 0) return;
+  await supabase.from("attachments").insert(
+    attachments.map((a) => ({ ticket_id: ticketId, ...a, uploaded_by: uploadedBy ?? null }))
+  );
 }
 
 // ─── AI Triage ─────────────────────────────────────────────────────────────────

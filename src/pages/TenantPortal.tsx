@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { createTicket, getProperties, triageTicket } from "@/lib/data/queries";
+import { createTicket, getProperties, triageTicket, uploadTenantPhotos, createTicketAttachments } from "@/lib/data/queries";
 import type { Property } from "@/lib/supabase";
 
 interface PhotoPreview {
   id: string;
   url: string;
   name: string;
+  file: File;
 }
 
 const CATEGORIES = [
@@ -69,7 +70,8 @@ export default function TenantPortal() {
         console.warn("AI triage unavailable, proceeding without it:", err);
       }
 
-      return createTicket({
+      // Create the ticket first
+      const ticket = await createTicket({
         title,
         description: desc,
         category,
@@ -77,6 +79,19 @@ export default function TenantPortal() {
         property_id: propertyId || undefined,
         ai_triage_json: aiTriageJson,
       });
+
+      // Upload photos and attach to ticket
+      if (photos.length > 0) {
+        try {
+          const photoFiles = photos.map(p => p.file);
+          const uploaded = await uploadTenantPhotos(photoFiles, ticket.id);
+          await createTicketAttachments(ticket.id, uploaded);
+        } catch (err) {
+          console.warn("Photo upload failed, continuing without photos:", err);
+        }
+      }
+
+      return ticket;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
@@ -106,6 +121,7 @@ export default function TenantPortal() {
       id: `${Date.now()}-${file.name}`,
       url: URL.createObjectURL(file),
       name: file.name,
+      file,
     }));
     setPhotos(prev => [...prev, ...newPhotos]);
     // Reset so same file can be re-selected
@@ -285,7 +301,7 @@ export default function TenantPortal() {
             {submitMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Submitting...
+                {photos.length > 0 ? "Uploading photos..." : "Submitting..."}
               </>
             ) : (
               <><Send className="w-4 h-4 mr-2" /> Submit Request</>
