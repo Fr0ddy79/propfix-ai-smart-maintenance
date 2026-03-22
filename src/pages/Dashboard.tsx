@@ -131,10 +131,15 @@ export default function Dashboard() {
               ))}
             </div>
           ) : unassigned.length === 0 ? (
-            <div className="px-5 py-8 flex flex-col items-center gap-2 text-center">
-              <CheckCircle className="w-8 h-8 text-status-completed/60" />
-              <p className="text-sm font-medium text-foreground">All tickets are assigned</p>
-              <p className="text-xs text-muted-foreground">Nice work — nothing waiting on you.</p>
+            <div className="px-5 py-8 flex flex-col items-center gap-3 text-center">
+              <div className="w-14 h-14 rounded-full bg-status-completed/10 flex items-center justify-center">
+                <CheckCircle className="w-7 h-7 text-status-completed" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">You're on top of it</p>
+                <p className="text-xs text-muted-foreground mt-0.5">No tickets waiting on you right now.</p>
+              </div>
+              <p className="text-xs text-muted-foreground/70">New requests will appear here automatically.</p>
             </div>
           ) : (
             <div className="divide-y divide-border">

@@ -18,7 +18,7 @@ const plans = [
       "Email notifications",
       "Basic reporting",
     ],
-    cta: "Start Free Trial",
+    cta: "Login to Demo",
     ctaHref: "/login",
     highlight: false,
   },
@@ -37,7 +37,7 @@ const plans = [
       "Custom workflows",
       "API access",
     ],
-    cta: "Start Free Trial",
+    cta: "Login to Demo",
     ctaHref: "/login",
     highlight: true,
   },
@@ -70,7 +70,7 @@ export function Pricing() {
         <div className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">Simple, transparent pricing</h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Start with a 14-day free trial. No credit card required.
+            Explore the full platform with demo access. No credit card required.
           </p>
         </div>
 
