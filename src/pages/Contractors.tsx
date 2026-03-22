@@ -5,7 +5,7 @@ import { Phone, Mail, Plus, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AssignJobDialog } from "@/components/app/AssignJobDialog";
 import { NewContractorDialog } from "@/components/app/NewContractorDialog";
-import { getContractors, getContractorActiveCounts } from "@/lib/data/queries";
+import { getContractors, getContractorActiveCounts, getContractorResponseSpeed } from "@/lib/data/queries";
 import type { ContractorRow } from "@/lib/data/queries";
 
 const availabilityConfig: Record<string, { label: string; className: string }> = {
@@ -26,6 +26,11 @@ export default function Contractors() {
   const { data: activeCounts = {} } = useQuery({
     queryKey: ["contractor-active-counts"],
     queryFn: getContractorActiveCounts,
+  });
+
+  const { data: responseSpeeds = {} } = useQuery({
+    queryKey: ["contractor-response-speed"],
+    queryFn: getContractorResponseSpeed,
   });
 
   return (
@@ -96,6 +101,11 @@ export default function Contractors() {
                   {activeCounts[c.id] ? (
                     <span className="text-status-in-progress font-medium tabular-nums">
                       {activeCounts[c.id]} active job{activeCounts[c.id] !== 1 ? "s" : ""}
+                    </span>
+                  ) : null}
+                  {responseSpeeds[c.id] ? (
+                    <span className="text-muted-foreground tabular-nums">
+                      Avg. {responseSpeeds[c.id]}h response
                     </span>
                   ) : null}
                 </div>

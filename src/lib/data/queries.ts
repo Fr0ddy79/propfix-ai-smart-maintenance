@@ -217,6 +217,30 @@ export async function getContractors(): Promise<ContractorRow[]> {
   })) as ContractorRow[];
 }
 
+export async function getContractorResponseSpeed(): Promise<Record<string, number>> {
+  // Average hours from ticket creation to last update (proxy for response/handling speed)
+  // For completed/in_progress tickets, updated_at approximates when work was done
+  const { data, error } = await supabase
+    .from("tickets")
+    .select("contractor_id, updated_at, created_at")
+    .in("status", ["in_progress", "completed"]);
+  if (error) throw error;
+
+  const responseTimes: Record<string, number[]> = {};
+  for (const t of data ?? []) {
+    if (!t.contractor_id) continue;
+    const hours = (new Date(t.updated_at).getTime() - new Date(t.created_at).getTime()) / (1000 * 60 * 60);
+    if (!responseTimes[t.contractor_id]) responseTimes[t.contractor_id] = [];
+    responseTimes[t.contractor_id].push(hours);
+  }
+
+  const avgSpeed: Record<string, number> = {};
+  for (const [id, hours] of Object.entries(responseTimes)) {
+    avgSpeed[id] = Math.round(hours.reduce((a, b) => a + b, 0) / hours.length);
+  }
+  return avgSpeed;
+}
+
 export async function getContractorActiveCounts(): Promise<Record<string, number>> {
   const { data, error } = await supabase
     .from("tickets")
