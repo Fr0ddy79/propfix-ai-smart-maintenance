@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
 import { createContractor } from "@/lib/data/queries";
 
 const SPECIALTIES = [
@@ -149,7 +150,12 @@ export function NewContractorDialog({ open, onOpenChange }: NewContractorDialogP
             disabled={!isValid || mutation.isPending}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {mutation.isPending ? "Adding..." : "Add Contractor"}
+            {mutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Adding...
+              </>
+            ) : "Add Contractor"}
           </Button>
         </DialogFooter>
       </DialogContent>

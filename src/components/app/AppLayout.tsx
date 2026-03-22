@@ -20,9 +20,11 @@ const navItems = [
 export function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(() =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem("propfix-dark-mode");
+    if (stored !== null) return stored === "true";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  });
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -39,6 +41,7 @@ export function AppLayout() {
     } else {
       document.documentElement.classList.remove("dark");
     }
+    localStorage.setItem("propfix-dark-mode", String(darkMode));
   }, [darkMode]);
 
   return (
@@ -148,15 +151,14 @@ export function AppLayout() {
               variant="ghost"
               size="icon"
               onClick={() => setDarkMode(d => !d)}
-              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
               {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
-            <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
+            <Button variant="ghost" size="icon" className="relative" aria-label="Notifications" title="Notifications coming soon">
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => logout()} title="Sign out">
+            <Button variant="ghost" size="icon" onClick={() => logout()} aria-label="Sign out">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>

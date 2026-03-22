@@ -24,3 +24,20 @@ export function StatusBadge({ status, className }: { status: string; className?:
     </span>
   );
 }
+
+// Priority badge for ticket lists
+const priorityConfig: Record<string, { label: string; className: string }> = {
+  urgent: { label: "Urgent", className: "bg-status-urgent/10 text-status-urgent border-status-urgent/20" },
+  high:   { label: "High",   className: "bg-orange-500/10 text-orange-600 border-orange-500/20 dark:text-orange-400 dark:border-orange-400/20" },
+  medium: { label: "Medium", className: "bg-primary/10 text-primary border-primary/20" },
+  low:    { label: "Low",    className: "bg-muted text-muted-foreground border-muted" },
+};
+
+export function PriorityBadge({ priority, className }: { priority: string; className?: string }) {
+  const config = priorityConfig[priority] ?? { label: priority, className: "bg-muted text-muted-foreground border-muted" };
+  return (
+    <span className={cn("inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border uppercase tracking-wide", config.className, className)}>
+      {config.label}
+    </span>
+  );
+}

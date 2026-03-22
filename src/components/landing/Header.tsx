@@ -42,7 +42,7 @@ export function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Link to="/app/dashboard">
+            <Link to="/login">
               <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all">
                 Start Free Trial — It's Free
               </Button>
@@ -76,7 +76,7 @@ export function Header() {
                   </a>
                 )
               ))}
-              <Link to="/app/dashboard" onClick={() => setMobileOpen(false)}>
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
                 <Button className="w-full mt-2 bg-primary text-primary-foreground">Start Free Trial — It's Free</Button>
               </Link>
             </nav>

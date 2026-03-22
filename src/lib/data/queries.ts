@@ -53,7 +53,9 @@ export interface CalendarEventRow {
   time: string;
   date: string;
   property_name: string;
+  unit: string | null;
   status: "open" | "assigned" | "in_progress" | "completed" | "cancelled";
+  priority: "low" | "medium" | "high" | "urgent";
 }
 
 // ─── Tickets ─────────────────────────────────────────────────────────────────
@@ -120,6 +122,7 @@ export async function createTicket(ticket: {
   priority: "low" | "medium" | "high" | "urgent";
   property_id?: string;
   tenant_id?: string;
+  unit?: string;
   scheduled_date?: string;
   ai_triage_json?: Record<string, unknown>;
 }) {
@@ -150,6 +153,17 @@ export async function updateTicketStatus(
   const { data, error } = await supabase
     .from("tickets")
     .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", ticketId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function setTicketSchedule(ticketId: string, scheduledDate: string) {
+  const { data, error } = await supabase
+    .from("tickets")
+    .update({ scheduled_date: scheduledDate || null, updated_at: new Date().toISOString() })
     .eq("id", ticketId)
     .select()
     .single();
@@ -203,6 +217,21 @@ export async function getContractors(): Promise<ContractorRow[]> {
   })) as ContractorRow[];
 }
 
+export async function getContractorActiveCounts(): Promise<Record<string, number>> {
+  const { data, error } = await supabase
+    .from("tickets")
+    .select("contractor_id")
+    .in("status", ["assigned", "in_progress"]);
+  if (error) throw error;
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    if (row.contractor_id) {
+      counts[row.contractor_id] = (counts[row.contractor_id] ?? 0) + 1;
+    }
+  }
+  return counts;
+}
+
 export async function getContractorById(id: string): Promise<ContractorRow | null> {
   const { data, error } = await supabase
     .from("contractors")
@@ -247,7 +276,7 @@ export async function getCalendarEvents(): Promise<CalendarEventRow[]> {
   const { data, error } = await supabase
     .from("tickets")
     .select(`
-      id, title, scheduled_date,
+      id, title, scheduled_date, status, priority, unit,
       contractor:contractors(id, company_name),
       property:properties(id, name)
     `)
@@ -263,7 +292,9 @@ export async function getCalendarEvents(): Promise<CalendarEventRow[]> {
     contractor_name: (t.contractor as Record<string, unknown> | null)?.company_name as string ?? "Unassigned",
     contractor_company: (t.contractor as Record<string, unknown> | null)?.company_name as string ?? "",
     property_name: (t.property as Record<string, unknown> | null)?.name as string ?? "",
+    unit: (t.unit as string | null) ?? null,
     status: (t.status as string) as CalendarEventRow["status"],
+    priority: (t.priority as string) ?? "medium",
     time: "9:00 AM",
   })) as CalendarEventRow[];
 }

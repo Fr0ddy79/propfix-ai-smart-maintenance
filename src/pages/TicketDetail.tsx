@@ -5,9 +5,9 @@ import { ArrowLeft, Bot, User, Wrench, Clock, MapPin, Camera, MessageSquare, Che
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatusBadge } from "@/components/app/StatusBadge";
+import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { CompletionProofDialog } from "@/components/app/CompletionProofDialog";
-import { getTicketById, getContractors, getMessages, addMessage, assignContractor, updateTicketStatus, completeTicket } from "@/lib/data/queries";
+import { getTicketById, getContractors, getMessages, addMessage, assignContractor, updateTicketStatus, completeTicket, setTicketSchedule } from "@/lib/data/queries";
 import type { TicketRow } from "@/lib/data/queries";
 
 interface TimelineEntry {
@@ -44,6 +44,7 @@ export default function TicketDetail() {
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [messageText, setMessageText] = useState("");
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState("");
 
   const assignMutation = useMutation({
     mutationFn: ({ ticketId, contractorId }: { ticketId: string; contractorId: string }) =>
@@ -75,6 +76,15 @@ export default function TicketDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["messages", id] });
       setMessageText("");
+    },
+  });
+
+  const scheduleMutation = useMutation({
+    mutationFn: (date: string) => setTicketSchedule(id!, date),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["ticket", id] });
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
     },
   });
 
@@ -177,8 +187,9 @@ export default function TicketDetail() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
             <StatusBadge status={ticket.status} />
+            <PriorityBadge priority={ticket.priority} />
             <span className="text-xs text-muted-foreground font-mono">{ticket.id.slice(0, 8)}</span>
           </div>
           <h1 className="text-xl font-bold text-foreground">{ticket.title}</h1>
@@ -265,6 +276,7 @@ export default function TicketDetail() {
             <div className="space-y-2 text-sm">
               <div><span className="text-muted-foreground">Property:</span> <span className="font-medium text-foreground">{ticket.property_name ?? "—"}</span></div>
               <div><span className="text-muted-foreground">Address:</span> <span className="text-foreground">{ticket.property_address ?? "—"}</span></div>
+              {ticket.unit && <div><span className="text-muted-foreground">Unit:</span> <span className="text-foreground">{ticket.unit}</span></div>}
             </div>
           </div>
 
@@ -313,7 +325,9 @@ export default function TicketDetail() {
                     <Button size="sm" variant="outline" className="text-xs active:scale-[0.97] transition-all"
                       onClick={() => handleAssign(c.id)}
                       disabled={assignMutation.isPending}>
-                      {assignMutation.isPending ? "Assigning..." : "Assign"}
+                      {assignMutation.isPending ? (
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full border border-primary/30 border-t-primary animate-spin inline-block" /> Assigning</span>
+                      ) : "Assign"}
                     </Button>
                   </div>
                 ))}
@@ -327,9 +341,58 @@ export default function TicketDetail() {
               <Clock className="w-4 h-4 text-muted-foreground" /> Scheduling
             </h3>
             {ticket.scheduled_date ? (
-              <p className="text-sm text-foreground">Scheduled for {new Date(ticket.scheduled_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
+              <div className="space-y-2">
+                <p className="text-sm text-foreground">
+                  {new Date(ticket.scheduled_date + "T00:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    className="flex-1 text-xs border border-border rounded-md px-2 py-1.5 bg-background text-foreground"
+                    value={scheduleDate}
+                    onChange={e => setScheduleDate(e.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-xs h-7"
+                    onClick={() => {
+                      if (scheduleDate) {
+                        scheduleMutation.mutate(scheduleDate);
+                        setScheduleDate("");
+                      }
+                    }}
+                    disabled={!scheduleDate || scheduleMutation.isPending}
+                  >
+                    {scheduleMutation.isPending ? "Saving..." : "Update"}
+                  </Button>
+                </div>
+              </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No date scheduled yet.</p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">No date scheduled yet.</p>
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    className="flex-1 text-xs border border-border rounded-md px-2 py-1.5 bg-background text-foreground"
+                    value={scheduleDate}
+                    onChange={e => setScheduleDate(e.target.value)}
+                  />
+                  <Button
+                    size="sm"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 h-7 text-xs"
+                    onClick={() => {
+                      if (scheduleDate) {
+                        scheduleMutation.mutate(scheduleDate);
+                        setScheduleDate("");
+                      }
+                    }}
+                    disabled={!scheduleDate || scheduleMutation.isPending}
+                  >
+                    {scheduleMutation.isPending ? "Saving..." : "Schedule"}
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
 

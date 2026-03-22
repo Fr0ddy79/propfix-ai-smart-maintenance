@@ -32,7 +32,7 @@ export function Hero() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <Link to="/app/dashboard">
+            <Link to="/login">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all h-12 px-8 text-base font-semibold">
                 Start Free Trial
                 <ArrowRight className="ml-2 w-4 h-4" />

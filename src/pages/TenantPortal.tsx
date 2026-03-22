@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Camera, Send, CheckCircle, X } from "lucide-react";
+import { ArrowLeft, Camera, Send, CheckCircle, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,11 +40,12 @@ export default function TenantPortal() {
   const queryClient = useQueryClient();
 
   // Form state
+  const [name, setName] = useState("");
+  const [unit, setUnit] = useState("");
+  const [propertyId, setPropertyId] = useState("");
   const [category, setCategory] = useState("General Maintenance");
   const [priority, setPriority] = useState("medium");
-  const [description, setDescription] = useState(
-    "The kitchen faucet has been dripping constantly for the past two days. Water is pooling under the sink and the cabinet base is getting damp."
-  );
+  const [description, setDescription] = useState("");
 
   const { data: properties = [] } = useQuery({
     queryKey: ["properties"],
@@ -52,26 +53,37 @@ export default function TenantPortal() {
   });
 
   const submitMutation = useMutation({
-    mutationFn: ({ propertyId }: { propertyId?: string }) =>
-      createTicket({
-        title: `${category} issue`,
-        description: description.trim(),
+    mutationFn: () => {
+      const unitInfo = unit.trim() ? ` Unit ${unit.trim()}` : "";
+      const nameInfo = name.trim() ? ` (${name.trim()})` : "";
+      return createTicket({
+        title: `${category} issue${unitInfo}${nameInfo}`,
+        description: description.trim() || `${category} issue submitted via tenant portal.`,
         category,
         priority: priority as "low" | "medium" | "high" | "urgent",
-        property_id: propertyId,
-      }),
+        property_id: propertyId || undefined,
+      });
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
       setSubmittedId(data?.id ?? null);
       setSubmitted(true);
+      resetForm();
     },
   });
 
   const handleSubmit = () => {
-    const selectedProperty = properties.find(
-      (p: Property) => p.name === (document.getElementById("property-select") as HTMLSelectElement)?.value
-    );
-    submitMutation.mutate({ propertyId: selectedProperty?.id });
+    submitMutation.mutate();
+  };
+
+  const resetForm = () => {
+    setName("");
+    setUnit("");
+    setPropertyId("");
+    setCategory("General Maintenance");
+    setPriority("medium");
+    setDescription("");
+    setPhotos([]);
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +118,7 @@ export default function TenantPortal() {
           <p className="text-sm text-muted-foreground mb-6">
             {submittedId ? `Ticket #${submittedId.slice(0, 8).toUpperCase()}` : "Ticket submitted"} · You'll receive email updates on progress.
           </p>
-          <Button onClick={() => { setSubmitted(false); setSubmittedId(null); }} variant="outline" className="active:scale-[0.97] transition-all">
+          <Button onClick={() => { setSubmitted(false); setSubmittedId(null); resetForm(); }} variant="outline" className="active:scale-[0.97] transition-all">
             Submit Another Request
           </Button>
         </div>
@@ -140,11 +152,11 @@ export default function TenantPortal() {
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Your Name</label>
-              <Input defaultValue="Maria Santos" className="bg-card" />
+              <Input placeholder="e.g. Jane Doe" value={name} onChange={e => setName(e.target.value)} className="bg-card" />
             </div>
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Unit Number</label>
-              <Input defaultValue="4B" className="bg-card" />
+              <Input placeholder="e.g. 4B" value={unit} onChange={e => setUnit(e.target.value)} className="bg-card" />
             </div>
           </div>
 
@@ -152,11 +164,13 @@ export default function TenantPortal() {
             <label className="text-sm font-medium text-foreground mb-1.5 block">Property</label>
             <select
               id="property-select"
+              value={propertyId}
+              onChange={e => setPropertyId(e.target.value)}
               className="w-full h-10 px-3 rounded-md border border-input bg-card text-sm text-foreground"
             >
               <option value="">Select a property...</option>
               {properties.map((p: Property) => (
-                <option key={p.id} value={p.name}>{p.name}</option>
+                <option key={p.id} value={p.id}>{p.name}</option>
               ))}
             </select>
           </div>
@@ -241,7 +255,14 @@ export default function TenantPortal() {
             disabled={submitMutation.isPending || !description.trim()}
             className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all font-semibold"
           >
-            {submitMutation.isPending ? "Submitting..." : <><Send className="w-4 h-4 mr-2" /> Submit Request</>}
+            {submitMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <><Send className="w-4 h-4 mr-2" /> Submit Request</>
+            )}
           </Button>
         </div>
       </div>

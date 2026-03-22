@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Clock, ArrowRight, Plus, Calendar as CalendarIcon, Flame } from "lucide-react";
+import { AlertTriangle, Clock, ArrowRight, Calendar as CalendarIcon, Flame, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatusBadge } from "@/components/app/StatusBadge";
+import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { getTickets, getCalendarEvents } from "@/lib/data/queries";
 
 const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
@@ -43,6 +43,21 @@ export default function Dashboard() {
   const inProgressCount = allTickets.filter(t => t.status === "in_progress").length;
   const completedCount = allTickets.filter(t => t.status === "completed").length;
   const unassignedCount = unassigned.length;
+
+  // Compute avg response time from ticket data: time from creation to first status change (assigned or in_progress)
+  const avgResponseHours = (() => {
+    const resolved = allTickets.filter(t =>
+      t.status === "assigned" || t.status === "in_progress" || t.status === "completed"
+    );
+    if (resolved.length === 0) return null;
+    const totalHours = resolved.reduce((sum, t) => {
+      const created = new Date(t.created_at).getTime();
+      const updated = new Date(t.updated_at).getTime();
+      return sum + (updated - created) / (1000 * 60 * 60);
+    }, 0);
+    const avg = totalHours / resolved.length;
+    return avg < 1 ? `<1h` : avg < 24 ? `${avg.toFixed(1)}h` : `${(avg / 24).toFixed(1)}d`;
+  })();
 
   const isLoading = ticketsLoading || calendarLoading;
 
@@ -87,8 +102,8 @@ export default function Dashboard() {
         </Link>
         <div className="rounded-xl border border-border bg-card p-4 card-shadow">
           <div className="text-xs text-muted-foreground mb-1">Avg Response</div>
-          <div className="text-2xl font-bold tabular-nums text-primary">1.4h</div>
-          <div className="text-xs text-muted-foreground mt-1">↓ 0.3h this week</div>
+          <div className="text-2xl font-bold tabular-nums text-primary">{isLoading ? "—" : avgResponseHours ?? "—"}</div>
+          <div className="text-xs text-muted-foreground mt-1">from ticket creation</div>
         </div>
       </div>
 
@@ -116,8 +131,10 @@ export default function Dashboard() {
               ))}
             </div>
           ) : unassigned.length === 0 ? (
-            <div className="px-5 py-8 text-center text-sm text-muted-foreground">
-              All tickets are assigned. Nice work! 🎉
+            <div className="px-5 py-8 flex flex-col items-center gap-2 text-center">
+              <CheckCircle className="w-8 h-8 text-status-completed/60" />
+              <p className="text-sm font-medium text-foreground">All tickets are assigned</p>
+              <p className="text-xs text-muted-foreground">Nice work — nothing waiting on you.</p>
             </div>
           ) : (
             <div className="divide-y divide-border">
@@ -130,17 +147,12 @@ export default function Dashboard() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <StatusBadge status={ticket.status} />
+                      <PriorityBadge priority={ticket.priority} />
                       <span className="text-xs text-muted-foreground font-mono">{ticket.id.slice(0, 8)}</span>
-                      {ticket.priority === "urgent" && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-status-urgent/10 text-status-urgent font-semibold">Urgent</span>
-                      )}
                     </div>
                     <div className="text-sm font-medium text-foreground truncate">{ticket.title}</div>
-                    <div className="text-xs text-muted-foreground">{ticket.property_name ?? "—"} · Unit</div>
+                    <div className="text-xs text-muted-foreground">{ticket.property_name ?? "—"}{ticket.unit ? ` · ${ticket.unit}` : ""}</div>
                   </div>
-                  <Button size="sm" className="ml-4 flex-shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all text-xs">
-                    <Plus className="w-3 h-3 mr-1" /> Assign
-                  </Button>
                 </Link>
               ))}
             </div>
@@ -177,6 +189,7 @@ export default function Dashboard() {
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-medium text-foreground tabular-nums">{event.time}</span>
                       <StatusBadge status={event.status} className="text-[10px]" />
+                      <PriorityBadge priority={event.priority} className="text-[10px]" />
                     </div>
                     <div className="text-sm text-foreground">{event.title}</div>
                     <div className="text-xs text-muted-foreground">{event.contractor_name} · {event.property_name}</div>
@@ -206,7 +219,10 @@ export default function Dashboard() {
               <div className="divide-y divide-border">
                 {upcomingJobs.map((event) => (
                   <div key={event.id} className="px-5 py-3">
-                    <div className="text-xs text-muted-foreground tabular-nums mb-0.5">{event.date} · {event.time}</div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <div className="text-xs text-muted-foreground tabular-nums">{event.date} · {event.time}</div>
+                      <PriorityBadge priority={event.priority} className="text-[10px]" />
+                    </div>
                     <div className="text-sm text-foreground">{event.title}</div>
                     <div className="text-xs text-muted-foreground">{event.contractor_name}</div>
                   </div>

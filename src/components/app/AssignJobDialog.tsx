@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { getTickets, assignContractor } from "@/lib/data/queries";
 import type { ContractorRow, TicketRow } from "@/lib/data/queries";
 
@@ -86,7 +87,12 @@ export function AssignJobDialog({ contractor, open, onOpenChange, onAssigned }: 
             disabled={!selected || assignMutation.isPending}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {assignMutation.isPending ? "Assigning..." : "Assign Job"}
+            {assignMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Assigning...
+              </>
+            ) : "Assign Job"}
           </Button>
         </DialogFooter>
       </DialogContent>

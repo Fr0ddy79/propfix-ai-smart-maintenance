@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Camera, X } from "lucide-react";
+import { Camera, X, Loader2 } from "lucide-react";
 import { completeTicket } from "@/lib/data/queries";
 
 interface PhotoPreview {
@@ -110,7 +110,12 @@ export function CompletionProofDialog({ jobId, jobTitle, open, onOpenChange, onC
             disabled={!notes.trim() || completeMutation.isPending}
             className="bg-status-completed text-primary-foreground hover:bg-status-completed/90"
           >
-            {completeMutation.isPending ? "Submitting..." : "Mark as Complete"}
+            {completeMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Submitting...
+              </>
+            ) : "Mark as Complete"}
           </Button>
         </DialogFooter>
       </DialogContent>

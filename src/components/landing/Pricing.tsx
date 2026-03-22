@@ -19,7 +19,7 @@ const plans = [
       "Basic reporting",
     ],
     cta: "Start Free Trial",
-    ctaHref: "/app/dashboard",
+    ctaHref: "/login",
     highlight: false,
   },
   {
@@ -38,7 +38,7 @@ const plans = [
       "API access",
     ],
     cta: "Start Free Trial",
-    ctaHref: "/app/dashboard",
+    ctaHref: "/login",
     highlight: true,
   },
   {

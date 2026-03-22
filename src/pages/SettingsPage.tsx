@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Building2, Users, Bell, CreditCard, Puzzle, Shield, ChevronDown, Plus } from "lucide-react";
+import { Building2, Users, Bell, CreditCard, Puzzle, Shield, ChevronDown, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -203,9 +203,9 @@ export default function SettingsPage() {
           </div>
           <div className="divide-y divide-border border-t border-border">
             {[
-              { label: "Plan", value: "Professional ($249/mo)" },
+              { label: "Plan", value: "Professional — $249/mo" },
               { label: "Next billing", value: nextBillingDate },
-              { label: "Payment", value: "Visa ****4242" },
+              { label: "Payment", value: "•••• •••• •••• ••••" },
             ].map(({ label, value }) => (
               <div key={label} className="flex items-center justify-between px-5 py-3">
                 <span className="text-xs text-muted-foreground">{label}</span>
@@ -266,7 +266,9 @@ export default function SettingsPage() {
               disabled={!newProperty.name.trim() || !newProperty.units || createMutation.isPending}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              {createMutation.isPending ? "Adding..." : "Add Property"}
+              {createMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Adding...</>
+              ) : "Add Property"}
             </Button>
           </DialogFooter>
         </DialogContent>

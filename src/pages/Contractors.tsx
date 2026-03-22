@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, Plus } from "lucide-react";
+import { Phone, Mail, Plus, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AssignJobDialog } from "@/components/app/AssignJobDialog";
 import { NewContractorDialog } from "@/components/app/NewContractorDialog";
-import { getContractors } from "@/lib/data/queries";
+import { getContractors, getContractorActiveCounts } from "@/lib/data/queries";
 import type { ContractorRow } from "@/lib/data/queries";
 
 const availabilityConfig: Record<string, { label: string; className: string }> = {
@@ -21,6 +21,11 @@ export default function Contractors() {
   const { data: contractors = [], isLoading } = useQuery({
     queryKey: ["contractors"],
     queryFn: getContractors,
+  });
+
+  const { data: activeCounts = {} } = useQuery({
+    queryKey: ["contractor-active-counts"],
+    queryFn: getContractorActiveCounts,
   });
 
   return (
@@ -46,6 +51,21 @@ export default function Contractors() {
             </div>
           ))}
         </div>
+      ) : contractors.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Users className="w-6 h-6 text-primary" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground mb-1">No contractors yet</h3>
+          <p className="text-xs text-muted-foreground mb-4">Add your first contractor to start assigning jobs.</p>
+          <Button
+            size="sm"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all"
+            onClick={() => setAddContractorOpen(true)}
+          >
+            <Plus className="w-4 h-4 mr-1.5" /> Add Contractor
+          </Button>
+        </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {contractors.map((c) => {
@@ -62,7 +82,7 @@ export default function Contractors() {
                   </span>
                 </div>
 
-                <div className="text-xs text-muted-foreground mb-3">
+                <div className="text-xs text-muted-foreground mb-1">
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-muted text-muted-foreground font-medium">
                     {c.specialty}
                   </span>
@@ -71,8 +91,13 @@ export default function Contractors() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
                   {c.email && <span className="truncate">{c.email}</span>}
+                  {activeCounts[c.id] ? (
+                    <span className="text-status-in-progress font-medium tabular-nums">
+                      {activeCounts[c.id]} active job{activeCounts[c.id] !== 1 ? "s" : ""}
+                    </span>
+                  ) : null}
                 </div>
 
                 <div className="flex gap-2">

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useSearchParams } from "react-router-dom";
-import { Search, Filter, Plus } from "lucide-react";
+import { Search, Filter, Plus, Ticket as TicketIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatusBadge } from "@/components/app/StatusBadge";
+import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { NewTicketDialog } from "@/components/app/NewTicketDialog";
 import { getTickets } from "@/lib/data/queries";
 import type { TicketRow } from "@/lib/data/queries";
@@ -17,6 +17,8 @@ const statusFilters = [
   { value: "in_progress", label: "In Progress" },
   { value: "completed", label: "Completed" },
 ];
+
+const priorityOrder: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 };
 
 export default function Tickets() {
   const [searchParams] = useSearchParams();
@@ -45,6 +47,15 @@ export default function Tickets() {
         return false;
     }
     return true;
+  }).sort((a, b) => {
+    // When viewing all/open, urgent tickets bubble to the top
+    if (statusFilter === "all" || statusFilter === "open") {
+      const pa = priorityOrder[a.priority] ?? 3;
+      const pb = priorityOrder[b.priority] ?? 3;
+      if (pa !== pb) return pa - pb;
+    }
+    // Default: newest first
+    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
   });
 
   return (
@@ -93,10 +104,12 @@ export default function Tickets() {
             <thead>
               <tr className="border-b border-border bg-muted/30">
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Priority</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">ID</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Issue</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden md:table-cell">Property</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden lg:table-cell">Type</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden lg:table-cell">Unit</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden xl:table-cell">Type</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden lg:table-cell">Contractor</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden md:table-cell">Updated</th>
               </tr>
@@ -106,18 +119,35 @@ export default function Tickets() {
                 [...Array(5)].map((_, i) => (
                   <tr key={i} className="border-b border-border">
                     <td className="px-4 py-3"><Skeleton className="h-4 w-16 rounded-full" /></td>
+                    <td className="px-4 py-3"><Skeleton className="h-4 w-14 rounded-full" /></td>
                     <td className="px-4 py-3"><Skeleton className="h-3 w-12" /></td>
                     <td className="px-4 py-3"><Skeleton className="h-4 w-48" /></td>
                     <td className="px-4 py-3 hidden md:table-cell"><Skeleton className="h-3 w-24" /></td>
-                    <td className="px-4 py-3 hidden lg:table-cell"><Skeleton className="h-3 w-16" /></td>
+                    <td className="px-4 py-3 hidden lg:table-cell"><Skeleton className="h-3 w-12" /></td>
+                    <td className="px-4 py-3 hidden xl:table-cell"><Skeleton className="h-3 w-16" /></td>
                     <td className="px-4 py-3 hidden lg:table-cell"><Skeleton className="h-3 w-24" /></td>
                     <td className="px-4 py-3 hidden md:table-cell"><Skeleton className="h-3 w-16" /></td>
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">
-                    No tickets match your filters. Try adjusting your search.
+                  <td colSpan={8} className="px-4 py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <TicketIcon className="w-6 h-6 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">No tickets found</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">No tickets match your current filters.</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        onClick={() => setDialogOpen(true)}
+                      >
+                        <Plus className="w-3.5 h-3.5 mr-1.5" /> Create Ticket
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -126,6 +156,9 @@ export default function Tickets() {
                     <td className="px-4 py-3">
                       <StatusBadge status={ticket.status} />
                     </td>
+                    <td className="px-4 py-3">
+                      <PriorityBadge priority={ticket.priority} />
+                    </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{ticket.id.slice(0, 8)}</td>
                     <td className="px-4 py-3">
                       <Link to={`/app/tickets/${ticket.id}`} className="font-medium text-foreground hover:text-primary transition-colors">
@@ -133,7 +166,8 @@ export default function Tickets() {
                       </Link>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{ticket.property_name ?? "—"}</td>
-                    <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{ticket.category ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{ticket.unit ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden xl:table-cell">{ticket.category ?? "—"}</td>
                     <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
                       {ticket.contractor_name ?? <span className="text-status-in-progress">Unassigned</span>}
                     </td>

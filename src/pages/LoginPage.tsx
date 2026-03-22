@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -89,7 +89,12 @@ export default function LoginPage() {
               disabled={loginMutation.isPending || !email || !password}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] transition-all font-semibold"
             >
-              {loginMutation.isPending ? "Signing in..." : "Sign in"}
+              {loginMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : "Sign in"}
             </Button>
           </form>
 

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Clock, CheckCircle, Play, Phone, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { StatusBadge } from "@/components/app/StatusBadge";
+import { StatusBadge, PriorityBadge } from "@/components/app/StatusBadge";
 import { CompletionProofDialog } from "@/components/app/CompletionProofDialog";
 import { getContractors, getContractorTickets, updateTicketStatus } from "@/lib/data/queries";
 import type { ContractorRow, TicketRow } from "@/lib/data/queries";
@@ -68,6 +68,9 @@ export default function ContractorPortal() {
               </button>
               {switcherOpen && (
                 <div className="absolute right-0 top-full mt-1 w-64 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
+                  <div className="px-4 py-2 border-b border-border">
+                    <p className="text-xs text-muted-foreground">Demo mode — select contractor</p>
+                  </div>
                   {contractors.map(c => (
                     <button
                       key={c.id}
@@ -112,6 +115,7 @@ export default function ContractorPortal() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <StatusBadge status={job.status} />
+                      <PriorityBadge priority={job.priority} />
                       <span className="text-xs text-muted-foreground font-mono">{job.id.slice(0, 8)}</span>
                     </div>
                     <h3 className="text-sm font-semibold text-foreground">{job.title}</h3>

@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createTicket } from "@/lib/data/queries";
+import { Loader2 } from "lucide-react";
+import { createTicket, getProperties } from "@/lib/data/queries";
 
 interface NewTicketDialogProps {
   open: boolean;
@@ -13,17 +14,23 @@ interface NewTicketDialogProps {
   onCreated?: () => void;
 }
 
-const issueTypes = ["Plumbing", "HVAC", "Electrical", "Locksmith", "Appliance", "Windows", "General"];
+const issueTypes = ["Plumbing", "HVAC", "Electrical", "Appliance", "General Maintenance", "Pest Control", "Locksmith", "Other"];
 const priorities = ["low", "medium", "high", "urgent"] as const;
 
 export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [property, setProperty] = useState("");
+  const [propertyId, setPropertyId] = useState("");
   const [unit, setUnit] = useState("");
   const [issueType, setIssueType] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high" | "urgent">("medium");
   const queryClient = useQueryClient();
+
+  const { data: properties = [] } = useQuery({
+    queryKey: ["properties"],
+    queryFn: getProperties,
+    enabled: open,
+  });
 
   const createMutation = useMutation({
     mutationFn: () => createTicket({
@@ -31,8 +38,8 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
       description: description.trim() || title.trim(),
       category: issueType,
       priority,
-      property_id: undefined,
-      tenant_id: undefined,
+      property_id: propertyId || undefined,
+      unit: unit.trim() || undefined,
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
@@ -43,7 +50,7 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
   });
 
   const reset = () => {
-    setTitle(""); setDescription(""); setProperty(""); setUnit("");
+    setTitle(""); setDescription(""); setPropertyId(""); setUnit("");
     setIssueType(""); setPriority("medium");
   };
 
@@ -79,7 +86,14 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Property</label>
-              <Input value={property} onChange={e => setProperty(e.target.value)} placeholder="e.g. Riverside Apartments" />
+              <Select value={propertyId} onValueChange={setPropertyId}>
+                <SelectTrigger><SelectValue placeholder="Select property" /></SelectTrigger>
+                <SelectContent>
+                  {properties.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Unit</label>
@@ -110,7 +124,12 @@ export function NewTicketDialog({ open, onOpenChange, onCreated }: NewTicketDial
             disabled={!canSubmit || createMutation.isPending}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {createMutation.isPending ? "Creating..." : "Create Ticket"}
+            {createMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Creating...
+              </>
+            ) : "Create Ticket"}
           </Button>
         </DialogFooter>
       </DialogContent>
