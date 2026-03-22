@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { getProperties, createProperty, getProfiles } from "@/lib/data/queries";
+import { toast } from "@/hooks/use-toast";
 import type { Profile } from "@/lib/supabase";
 
 const sectionIcons = { Building2, Users, Bell, CreditCard, Puzzle, Shield };
@@ -138,7 +139,7 @@ export default function SettingsPage() {
                 ))}
                 <button
                   className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors"
-                  onClick={() => window.alert("Team invites coming soon — share your dashboard URL to get started.")}
+                  onClick={() => toast({ title: "Coming soon", description: "Team invites will be available in the next release." })}
                 >
                   <Plus className="w-3.5 h-3.5" /> Invite Member
                 </button>
@@ -213,7 +214,7 @@ export default function SettingsPage() {
             ))}
             <button
               className="w-full flex items-center justify-center gap-2 px-5 py-3 text-sm text-primary hover:bg-primary/5 transition-colors"
-              onClick={() => window.alert("Billing management coming soon — contact hello@propfix.ai for changes.")}
+              onClick={() => toast({ title: "Billing", description: "Contact hello@propfix.ai to manage your subscription." })}
             >
               Manage Subscription
             </button>
