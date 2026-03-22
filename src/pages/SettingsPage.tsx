@@ -96,7 +96,16 @@ export default function SettingsPage() {
                         <div className="text-sm font-medium text-foreground">{property.name}</div>
                         <div className="text-xs text-muted-foreground">{(property as { unit_count?: number }).unit_count ?? 0} units · {property.address}</div>
                       </div>
-                      <Button variant="ghost" size="sm" className="text-xs text-muted-foreground h-7">Edit</Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-muted-foreground h-7 cursor-not-allowed opacity-60"
+                        disabled
+                        title="Property editing coming soon"
+                        onClick={() => toast({ title: "Coming soon", description: "Property editing will be available in the next release." })}
+                      >
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 ))}
